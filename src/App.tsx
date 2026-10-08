@@ -45,11 +45,7 @@ import {
 import { demoInvoices } from "./demo";
 import {
   calendarICS,
-  dateLabel,
   groupKey,
-  invoiceStatus,
-  money,
-  monthLabel,
   todayISO,
   validDate,
 } from "./domain.mjs";
@@ -61,13 +57,23 @@ import {
 import { request } from "./api";
 import { parseBackup } from "./backup";
 import type { AppState, Attachment, Invoice, Settings, Tab } from "./types";
-import { applyTheme, setActiveLanguage, tr } from "./locale";
+import {
+  applyTheme,
+  categoryLabel,
+  dateLabel,
+  invoiceStatus,
+  language as activeLanguage,
+  money,
+  monthLabel,
+  setActiveLanguage,
+  tr,
+} from "./locale";
 const PDFPreview = lazy(() => import("./components/PDFPreview"));
 const tabs = [
-  { id: "inicio", label: "Inicio", icon: Home },
-  { id: "calendario", label: "Calendario", icon: CalendarDays },
-  { id: "archivo", label: "Archivo", icon: FolderClosed },
-  { id: "analisis", label: "Análisis", icon: ChartNoAxesCombined },
+  { id: "inicio", label: ["Inicio", "Home"], icon: Home },
+  { id: "calendario", label: ["Calendario", "Calendar"], icon: CalendarDays },
+  { id: "archivo", label: ["Archivo", "Archive"], icon: FolderClosed },
+  { id: "analisis", label: ["Análisis", "Analysis"], icon: ChartNoAxesCombined },
 ] as const;
 function SettingsModal({
   settings,
@@ -102,11 +108,11 @@ function SettingsModal({
       value !== null &&
       (!Number.isFinite(value) || value < 0 || value > 1e12)
     ) {
-      setError("Revisa el valor de tu ingreso.");
+      setError(tr("Revisa el valor de tu ingreso.", "Review your income amount."));
       return;
     }
     if (url && !/^https?:\/\/[^\s]+$/.test(url)) {
-      setError("Usa una dirección válida que empiece por https:// o http://.");
+      setError(tr("Usa una dirección válida que empiece por https:// o http://.", "Use a valid address beginning with https:// or http://."));
       return;
     }
     setBusy(true);
@@ -120,15 +126,15 @@ function SettingsModal({
       });
       onClose();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "No pudimos guardar.");
+      setError(e instanceof Error ? e.message : tr("No pudimos guardar.", "We couldn't save."));
     } finally {
       setBusy(false);
     }
   }
   return (
     <Modal
-      title="A tu manera"
-      subtitle="Tu información. Tus preferencias."
+      title={tr("A tu manera", "Your way")}
+      subtitle={tr("Tu información. Tus preferencias.", "Your information. Your preferences.")}
       onClose={() => {
         if (!busy) onClose();
       }}
@@ -163,7 +169,7 @@ function SettingsModal({
           <small>{tr("El cambio se aplicará al guardar.", "Changes apply when you save.")}</small>
         </section>
         <label>
-          Ingreso mensual opcional
+          {tr("Ingreso mensual opcional", "Optional monthly income")}
           <input
             inputMode="decimal"
             type="number"
@@ -173,15 +179,15 @@ function SettingsModal({
             onChange={(e) => setIncome(e.target.value)}
             placeholder="Ej. 2500000"
           />
-          <small>Solo se usa para tu proyección. Puedes dejarlo vacío.</small>
+          <small>{tr("Solo se usa para tu proyección. Puedes dejarlo vacío.", "Only used for your projection. You can leave it blank.")}</small>
         </label>
         <section className="settings-section">
           <h3>
-            <Bell size={18} /> Recordatorios
+            <Bell size={18} /> {tr("Recordatorios", "Reminders")}
           </h3>
           {Capacitor.isNativePlatform() ? (
             <label className="toggle-row">
-              <span>Avisos 7, 3 y 1 día antes, y el día límite</span>
+              <span>{tr("Avisos 7, 3 y 1 día antes, y el día límite", "Alerts 7, 3, and 1 day before, and on the due date")}</span>
               <input
                 type="checkbox"
                 checked={notifications}
@@ -190,15 +196,13 @@ function SettingsModal({
             </label>
           ) : (
             <p>
-              Exporta tus vencimientos con avisos a la aplicación de calendario
-              que uses.
+              {tr("Exporta tus vencimientos con avisos a la aplicación de calendario que uses.", "Export due dates with alerts to your calendar app.")}
             </p>
           )}
           {Capacitor.isNativePlatform() ? (
             <>
               <small>
-                Los avisos se programan para las 9:00 a. m. Android puede
-                retrasarlos según el ahorro de batería.
+                {tr("Los avisos se programan para las 9:00 a. m. Android puede retrasarlos según el ahorro de batería.", "Alerts are scheduled for 9:00 a.m. Android may delay them to save battery.")}
               </small>
               <button
                 className="secondary-button"
@@ -210,20 +214,20 @@ function SettingsModal({
                   try {
                     await testNotification();
                     setNotificationMessage(
-                      "Prueba programada. Espera unos segundos; Android puede retrasar el aviso.",
+                      tr("Prueba programada. Espera unos segundos; Android puede retrasar el aviso.", "Test scheduled. Wait a few seconds; Android may delay the alert."),
                     );
                   } catch (e) {
                     setError(
                       e instanceof Error
                         ? e.message
-                        : "No pudimos programar la prueba.",
+                        : tr("No pudimos programar la prueba.", "We couldn't schedule the test."),
                     );
                   } finally {
                     setBusy(false);
                   }
                 }}
               >
-                <Bell size={17} /> Probar notificación
+                <Bell size={17} /> {tr("Probar notificación", "Test notification")}
               </button>
               {notificationMessage ? (
                 <p role="status">{notificationMessage}</p>
@@ -232,21 +236,20 @@ function SettingsModal({
           ) : null}
           <button className="secondary-button" onClick={onCalendar}>
             <CalendarDays size={17} />
-            Exportar al calendario
+            {tr("Exportar al calendario", "Export to calendar")}
           </button>
         </section>
         <section className="settings-section">
           <h3>
-            <ShieldCheck size={18} /> Tus datos
+            <ShieldCheck size={18} /> {tr("Tus datos", "Your data")}
           </h3>
           <p>
-            Los registros y archivos se guardan en este dispositivo. Crea un
-            respaldo para conservarlos si cambias de teléfono.
+            {tr("Los registros y archivos se guardan en este dispositivo. Crea un respaldo para conservarlos si cambias de teléfono.", "Records and files are stored on this device. Create a backup to keep them if you change phones.")}
           </p>
           <div className="settings-actions">
             <button className="secondary-button" onClick={onExport}>
               <Download size={16} />
-              Crear respaldo
+              {tr("Crear respaldo", "Create backup")}
             </button>
             <button
               className="secondary-button"
@@ -254,7 +257,7 @@ function SettingsModal({
               disabled={busy}
             >
               <Upload size={16} />
-              Restaurar
+              {tr("Restaurar", "Restore")}
             </button>
           </div>
           <input
@@ -274,7 +277,7 @@ function SettingsModal({
                 setError(
                   err instanceof Error
                     ? err.message
-                    : "No pudimos restaurar el respaldo.",
+                    : tr("No pudimos restaurar el respaldo.", "We couldn't restore the backup."),
                 );
               } finally {
                 setBusy(false);
@@ -283,17 +286,16 @@ function SettingsModal({
           />
         </section>
         <details className="extra-fields">
-          <summary>Conexión al servidor de IA</summary>
+          <summary>{tr("Conexión al servidor de IA", "AI server connection")}</summary>
           <label>
-            Dirección del servidor
+            {tr("Dirección del servidor", "Server address")}
             <input
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://tu-servidor.com"
             />
             <small>
-              En este navegador puedes dejarla vacía. En Android usa la
-              dirección de tu servidor. La clave permanece en el servidor.
+              {tr("En este navegador puedes dejarla vacía. En Android usa la dirección de tu servidor. La clave permanece en el servidor.", "You can leave this blank in the browser. On Android, enter your server address. The key stays on the server.")}
             </small>
           </label>
         </details>
@@ -303,14 +305,14 @@ function SettingsModal({
           </p>
         ) : null}
         <div className="modal-footer">
-          <span>CuentAI · versión 0.1</span>
+          <span>CuentAI · {tr("versión", "version")} 0.1</span>
           <button className="primary-button" onClick={save} disabled={busy}>
             {busy ? (
               <LoaderCircle size={16} className="spin" />
             ) : (
               <Check size={16} />
             )}
-            Guardar ajustes
+            {tr("Guardar ajustes", "Save settings")}
           </button>
         </div>
       </div>
@@ -333,7 +335,7 @@ function PaymentModal({
   const input = useRef<HTMLInputElement>(null);
   async function submit() {
     if (!validDate(date) || date > todayISO()) {
-      setError("Elige una fecha de pago válida, hasta hoy.");
+      setError(tr("Elige una fecha de pago válida, hasta hoy.", "Choose a valid payment date up to today."));
       return;
     }
     setBusy(true);
@@ -341,7 +343,7 @@ function PaymentModal({
       await onSave(date, receipt);
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "No pudimos registrar el pago.",
+        e instanceof Error ? e.message : tr("No pudimos registrar el pago.", "We couldn't record the payment."),
       );
     } finally {
       setBusy(false);
@@ -349,8 +351,8 @@ function PaymentModal({
   }
   return (
     <Modal
-      title="Un pendiente menos"
-      subtitle={`Registra el pago total de ${invoice.entity}.`}
+      title={tr("Un pendiente menos", "One less pending bill")}
+      subtitle={tr(`Registra el pago total de ${invoice.entity}.`, `Record the full payment to ${invoice.entity}.`)}
       onClose={() => {
         if (!busy) onClose();
       }}
@@ -358,10 +360,10 @@ function PaymentModal({
       <div className="payment-summary">
         <CategoryIcon category={invoice.category} />
         <strong>{money(invoice.amount)}</strong>
-        <span>Pago total de esta factura</span>
+        <span>{tr("Pago total de esta factura", "Full payment for this bill")}</span>
       </div>
       <label>
-        Fecha de pago
+        {tr("Fecha de pago", "Payment date")}
         <input
           type="date"
           value={date}
@@ -376,8 +378,8 @@ function PaymentModal({
       >
         <Upload size={20} />
         <span>
-          {receipt ? receipt.name : "Añadir comprobante"}
-          <small>Opcional · PDF o imagen</small>
+          {receipt ? receipt.name : tr("Añadir comprobante", "Add receipt")}
+          <small>{tr("Opcional · PDF o imagen", "Optional · PDF or image")}</small>
         </span>
         {receipt ? <Check size={18} /> : <Plus size={18} />}
       </button>
@@ -394,15 +396,14 @@ function PaymentModal({
           try {
             setReceipt(await readFile(file));
           } catch (err) {
-            setError(err instanceof Error ? err.message : "No se pudo abrir.");
+            setError(err instanceof Error ? err.message : tr("No se pudo abrir.", "Could not open."));
           } finally {
             setBusy(false);
           }
         }}
       />
       <p className="small-note">
-        CuentAI guarda tu registro de pago. El pago se realiza por el medio
-        habitual de la entidad.
+        {tr("CuentAI guarda tu registro de pago. El pago se realiza por el medio habitual de la entidad.", "CuentAI saves your payment record. Pay through the entity's usual channel.")}
       </p>
       {error ? (
         <p className="form-error" role="alert">
@@ -410,14 +411,14 @@ function PaymentModal({
         </p>
       ) : null}
       <div className="modal-footer">
-        <span>Factura y comprobante juntos</span>
+        <span>{tr("Factura y comprobante juntos", "Bill and receipt together")}</span>
         <button className="primary-button" disabled={busy} onClick={submit}>
           {busy ? (
             <LoaderCircle className="spin" size={16} />
           ) : (
             <Check size={17} />
           )}
-          Confirmar pago
+          {tr("Confirmar pago", "Confirm payment")}
         </button>
       </div>
     </Modal>
@@ -461,6 +462,7 @@ function AssistantModal({
         apiUrl,
         {
           question: text,
+          language: activeLanguage(),
           invoices: invoices
             .slice(-300)
             .map(
@@ -492,7 +494,7 @@ function AssistantModal({
         { role: "assistant", text: result.answer },
       ]);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "No pudimos responder.");
+      setError(e instanceof Error ? e.message : tr("No pudimos responder.", "We couldn't answer."));
     } finally {
       clearTimeout(timeout);
       setBusy(false);
@@ -500,8 +502,8 @@ function AssistantModal({
   }
   return (
     <Modal
-      title="Una pregunta, más claridad"
-      subtitle="Respuestas basadas en las facturas que tienes aquí."
+      title={tr("Una pregunta, más claridad", "One question, more clarity")}
+      subtitle={tr("Respuestas basadas en las facturas que tienes aquí.", "Answers based on the bills stored here.")}
       onClose={onClose}
     >
       <div className="assistant-chat" ref={list}>
@@ -510,14 +512,21 @@ function AssistantModal({
             <span className="assistant-orb">
               <Sparkles size={28} />
             </span>
-            <h3>¿Qué quieres entender?</h3>
-            <p>Puedo ayudarte a consultar pagos y resumir tus obligaciones.</p>
+            <h3>{tr("¿Qué quieres entender?", "What would you like to understand?")}</h3>
+            <p>{tr("Puedo ayudarte a consultar pagos y resumir tus obligaciones.", "I can help you review payments and summarize your obligations.")}</p>
             <div className="question-chips">
-              {[
-                "¿Qué tengo por pagar este mes?",
-                "¿Cuánto tengo vencido?",
-                "¿Qué pagos vienen en 30 días?",
-              ].map((q) => (
+              {(activeLanguage() === "en"
+                ? [
+                    "What do I need to pay this month?",
+                    "How much is overdue?",
+                    "What payments are due in 30 days?",
+                  ]
+                : [
+                    "¿Qué tengo por pagar este mes?",
+                    "¿Cuánto tengo vencido?",
+                    "¿Qué pagos vienen en 30 días?",
+                  ]
+              ).map((q) => (
                 <button key={q} onClick={() => void ask(q)} disabled={busy}>
                   {q}
                   <ArrowUpRight size={15} />
@@ -540,7 +549,7 @@ function AssistantModal({
         {busy ? (
           <div className="chat-loading" role="status">
             <LoaderCircle className="spin" size={17} />
-            Consultando tus registros…
+            {tr("Consultando tus registros…", "Checking your records…")}
           </div>
         ) : null}
         {error ? (
@@ -560,21 +569,20 @@ function AssistantModal({
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           maxLength={1000}
-          placeholder="Escribe tu pregunta…"
-          aria-label="Tu pregunta"
+          placeholder={tr("Escribe tu pregunta…", "Type your question…")}
+          aria-label={tr("Tu pregunta", "Your question")}
           disabled={busy}
         />
         <button
           className="primary-button"
           disabled={busy || !question.trim()}
-          aria-label="Enviar pregunta"
+          aria-label={tr("Enviar pregunta", "Send question")}
         >
           <Send size={18} />
         </button>
       </form>
       <p className="privacy-note">
-        Tu consulta y los datos de tus facturas se envían a OpenAI al preguntar.
-        Verifica las respuestas con tus documentos.
+        {tr("Tu consulta y los datos de tus facturas se envían a OpenAI al preguntar. Verifica las respuestas con tus documentos.", "Your question and bill data are sent to OpenAI when you ask. Verify answers against your documents.")}
       </p>
     </Modal>
   );
@@ -607,7 +615,7 @@ export default function App() {
       })
       .catch(() => {
         setStorageError(
-          "No pudimos abrir el almacenamiento. Activa el almacenamiento del navegador y recarga para guardar datos.",
+          tr("No pudimos abrir el almacenamiento. Activa el almacenamiento del navegador y recarga para guardar datos.", "We couldn't open storage. Enable browser storage and reload to save data."),
         );
         setLoaded(true);
       });
@@ -635,7 +643,7 @@ export default function App() {
         await syncNotifications(next.invoices);
       } catch {
         setToast(
-          "Guardado. No se pudieron actualizar los recordatorios; revísalos en Ajustes.",
+          tr("Guardado. No se pudieron actualizar los recordatorios; revísalos en Ajustes.", "Saved. Reminders could not be updated; review them in Settings."),
         );
       }
     }
@@ -660,7 +668,7 @@ export default function App() {
     setForm(null);
     setDemo(false);
     setSelected(invoice.id);
-    setToast("Factura guardada. Un poco más de orden.");
+    setToast(tr("Factura guardada. Un poco más de orden.", "Bill saved. A little more order."));
   }
   function add() {
     setSelected(null);
@@ -670,12 +678,12 @@ export default function App() {
     try {
       const doc = await getAttachment(id);
       if (!doc)
-        throw new Error("No encontramos el documento en este dispositivo.");
+        throw new Error(tr("No encontramos el documento en este dispositivo.", "We couldn't find the document on this device."));
       setSelected(null);
       setDocument(doc);
     } catch (e) {
       setToast(
-        e instanceof Error ? e.message : "No pudimos abrir el documento.",
+        e instanceof Error ? e.message : tr("No pudimos abrir el documento.", "We couldn't open the document."),
       );
     }
   }
@@ -699,7 +707,7 @@ export default function App() {
     );
     setPayment(null);
     setSelected(payment.id);
-    setToast("Pago registrado. Ya puedes soltar ese pendiente.");
+    setToast(tr("Pago registrado. Ya puedes soltar ese pendiente.", "Payment recorded. One less thing to worry about."));
   }
   async function undoPayment(invoice: Invoice) {
     setMutating(true);
@@ -718,10 +726,10 @@ export default function App() {
         [],
         invoice.receiptId ? [invoice.receiptId] : [],
       );
-      setToast("La factura vuelve a estar pendiente.");
+      setToast(tr("La factura vuelve a estar pendiente.", "The bill is pending again."));
     } catch (e) {
       setToast(
-        e instanceof Error ? e.message : "No pudimos cambiar el estado.",
+        e instanceof Error ? e.message : tr("No pudimos cambiar el estado.", "We couldn't change the status."),
       );
     } finally {
       setMutating(false);
@@ -742,16 +750,16 @@ export default function App() {
         ),
       );
       setDeleteTarget(null);
-      setToast("Factura eliminada de este dispositivo.");
+      setToast(tr("Factura eliminada de este dispositivo.", "Bill deleted from this device."));
     } catch (e) {
-      setToast(e instanceof Error ? e.message : "No pudimos eliminarla.");
+      setToast(e instanceof Error ? e.message : tr("No pudimos eliminarla.", "We couldn't delete it."));
     } finally {
       setMutating(false);
     }
   }
   async function exportCalendar() {
     if (!state.invoices.some((i) => !i.paidDate)) {
-      setToast("Añade una factura pendiente antes de exportar el calendario.");
+      setToast(tr("Añade una factura pendiente antes de exportar el calendario.", "Add a pending bill before exporting the calendar."));
       return;
     }
     try {
@@ -761,9 +769,9 @@ export default function App() {
           type: "text/calendar;charset=utf-8",
         }),
       );
-      setToast("Calendario preparado con avisos de vencimiento.");
+      setToast(tr("Calendario preparado con avisos de vencimiento.", "Calendar prepared with due date alerts."));
     } catch {
-      setToast("No pudimos exportar el calendario.");
+      setToast(tr("No pudimos exportar el calendario.", "We couldn't export the calendar."));
     }
   }
   async function exportBackup() {
@@ -787,14 +795,14 @@ export default function App() {
           { type: "application/json" },
         ),
       );
-      setToast("Respaldo descargado. Guárdalo en un lugar privado.");
+      setToast(tr("Respaldo descargado. Guárdalo en un lugar privado.", "Backup downloaded. Keep it in a private place."));
     } catch {
-      setToast("No pudimos crear el respaldo.");
+      setToast(tr("No pudimos crear el respaldo.", "We couldn't create the backup."));
     }
   }
   async function restore(file: File) {
     if (file.size > 60 * 1024 * 1024)
-      throw new Error("El respaldo supera 60 MB.");
+      throw new Error(tr("El respaldo supera 60 MB.", "The backup exceeds 60 MB."));
     const backup = parseBackup(JSON.parse(await file.text()));
     const merged = new Map(state.invoices.map((i) => [i.id, i]));
     backup.state.invoices.forEach((i) => {
@@ -816,7 +824,7 @@ export default function App() {
       backup.attachments.filter((a) => !existingAttachments.has(a.id)),
     );
     setDemo(false);
-    setToast("Respaldo restaurado. Conservamos tus registros existentes.");
+    setToast(tr("Respaldo restaurado. Conservamos tus registros existentes.", "Backup restored. Your existing records were kept."));
   }
   async function saveSettings(settings: Settings) {
     if (settings.notifications && !state.settings.notifications)
@@ -826,22 +834,22 @@ export default function App() {
     await commit({ ...state, settings });
     setActiveLanguage(settings.language);
     applyTheme(settings.theme);
-    setToast("Preferencias guardadas.");
+    setToast(tr("Preferencias guardadas.", "Preferences saved."));
   }
   if (!loaded)
     return (
       <div className="loading-screen">
         <Brand />
         <LoaderCircle className="spin" />
-        <p>Estamos poniendo todo en su lugar.</p>
+        <p>{tr("Estamos poniendo todo en su lugar.", "Putting everything in place.")}</p>
       </div>
     );
   return (
     <div className="app-shell">
       <aside className="sidebar">
         <Brand />
-        <div className="sidebar-caption">UN POCO MÁS DE CALMA</div>
-        <nav aria-label="Navegación principal">
+        <div className="sidebar-caption">{tr("UN POCO MÁS DE CALMA", "A LITTLE MORE PEACE")}</div>
+        <nav aria-label={tr("Navegación principal", "Main navigation")}>
           {tabs.map((t) => (
             <button
               key={t.id}
@@ -850,24 +858,24 @@ export default function App() {
               aria-current={tab === t.id ? "page" : undefined}
             >
               <t.icon size={20} />
-              {t.label}
+              {tr(t.label[0], t.label[1])}
               {tab === t.id ? <span className="nav-dot" /> : null}
             </button>
           ))}
         </nav>
         <button className="sidebar-add" onClick={add}>
           <Plus size={18} />
-          Añadir factura
+          {tr("Añadir factura", "Add bill")}
         </button>
         <div className="sidebar-bottom">
           <div className="sidebar-assistant">
             <span>
               <Sparkles size={19} />
             </span>
-            <h3>¿Una mano con tus cuentas?</h3>
-            <p>Pregúntale a CuentAI.</p>
+            <h3>{tr("¿Una mano con tus cuentas?", "Need a hand with your bills?")}</h3>
+            <p>{tr("Pregúntale a CuentAI.", "Ask CuentAI.")}</p>
             <button onClick={() => setModal("assistant")}>
-              Abrir asistente <ArrowRight size={16} />
+              {tr("Abrir asistente", "Open assistant")} <ArrowRight size={16} />
             </button>
           </div>
           <button
@@ -875,7 +883,7 @@ export default function App() {
             onClick={() => setModal("settings")}
           >
             <SettingsIcon size={18} />
-            Ajustes<span>0.1</span>
+            {tr("Ajustes", "Settings")}<span>0.1</span>
           </button>
         </div>
       </aside>
@@ -885,7 +893,7 @@ export default function App() {
             <Brand />
           </div>
           <span className="topbar-date">
-            {new Intl.DateTimeFormat("es-CO", {
+            {new Intl.DateTimeFormat(activeLanguage() === "en" ? "en-US" : "es-CO", {
               weekday: "long",
               day: "numeric",
               month: "long",
@@ -895,16 +903,16 @@ export default function App() {
           <div className="topbar-actions">
             <button
               className="assistant-button"
-              aria-label="Abrir asistente"
+              aria-label={tr("Abrir asistente", "Open assistant")}
               onClick={() => setModal("assistant")}
             >
               <Sparkles size={17} />
-              <span>Tu asistente</span>
+              <span>{tr("Tu asistente", "Your assistant")}</span>
             </button>
             <button
               className="icon-button"
               onClick={() => setModal("reminders")}
-              aria-label="Ver recordatorios"
+              aria-label={tr("Ver recordatorios", "View reminders")}
             >
               <Bell size={20} />
               {invoices.some((i) => !i.paidDate && i.dueDate <= today) ? (
@@ -914,7 +922,7 @@ export default function App() {
             <button
               className="avatar-button"
               onClick={() => setModal("settings")}
-              aria-label="Abrir ajustes"
+              aria-label={tr("Abrir ajustes", "Open settings")}
             >
               C
             </button>
@@ -923,7 +931,7 @@ export default function App() {
         <main>
           <div className="demo-banner" hidden={!demo}>
             <span>
-              <Sparkles size={15} /> Estás viendo datos de ejemplo
+              <Sparkles size={15} /> {tr("Estás viendo datos de ejemplo", "You are viewing sample data")}
             </span>
             <button
               onClick={() => {
@@ -935,7 +943,7 @@ export default function App() {
                   .catch((e) => setToast(e.message));
               }}
             >
-              Usar mis facturas <ArrowRight size={14} />
+              {tr("Usar mis facturas", "Use my bills")} <ArrowRight size={14} />
             </button>
           </div>
           {storageError ? (
@@ -973,7 +981,7 @@ export default function App() {
           )}
         </main>
       </div>
-      <nav className="bottom-nav" aria-label="Navegación móvil">
+      <nav className="bottom-nav" aria-label={tr("Navegación móvil", "Mobile navigation")}>
         {tabs.map((t) => (
           <button
             key={t.id}
@@ -982,11 +990,11 @@ export default function App() {
             aria-current={tab === t.id ? "page" : undefined}
           >
             <t.icon size={21} />
-            <span>{t.label}</span>
+            <span>{tr(t.label[0], t.label[1])}</span>
           </button>
         ))}
       </nav>
-      <button className="mobile-add" onClick={add} aria-label="Añadir factura">
+      <button className="mobile-add" onClick={add} aria-label={tr("Añadir factura", "Add bill")}>
         <Plus size={25} />
       </button>
       {form ? (
@@ -1003,7 +1011,7 @@ export default function App() {
       {active ? (
         <Modal
           title={active.entity}
-          subtitle={`${active.category} · ${monthLabel(`${active.period}-01`)}`}
+          subtitle={`${categoryLabel(active.category)} · ${monthLabel(`${active.period}-01`)}`}
           onClose={() => setSelected(null)}
         >
           <div className="detail-hero">
@@ -1015,28 +1023,28 @@ export default function App() {
           </div>
           <dl className="detail-data">
             <div>
-              <dt>Fecha límite</dt>
+              <dt>{tr("Fecha límite", "Due date")}</dt>
               <dd>{dateLabel(active.dueDate)}</dd>
             </div>
             {active.issueDate ? (
               <div>
-                <dt>Emitida</dt>
+                <dt>{tr("Emitida", "Issued")}</dt>
                 <dd>{dateLabel(active.issueDate)}</dd>
               </div>
             ) : null}
             <div>
-              <dt>Referencia</dt>
-              <dd>{active.reference || "Sin referencia"}</dd>
+              <dt>{tr("Referencia", "Reference")}</dt>
+              <dd>{active.reference || tr("Sin referencia", "No reference")}</dd>
             </div>
             {active.minimumPayment ? (
               <div>
-                <dt>Pago mínimo del extracto</dt>
+                <dt>{tr("Pago mínimo del extracto", "Statement minimum payment")}</dt>
                 <dd>{money(active.minimumPayment)}</dd>
               </div>
             ) : null}
             {active.paidDate ? (
               <div>
-                <dt>Pago registrado</dt>
+                <dt>{tr("Pago registrado", "Payment recorded")}</dt>
                 <dd>
                   {dateLabel(active.paidDate)} ·{" "}
                   {money(active.paidAmount ?? active.amount)}
@@ -1052,7 +1060,7 @@ export default function App() {
                 onClick={() => void viewAttachment(active.documentId!)}
               >
                 <FileText size={16} />
-                Ver factura
+                {tr("Ver factura", "View bill")}
               </button>
             ) : null}
             {active.receiptId ? (
@@ -1061,11 +1069,11 @@ export default function App() {
                 onClick={() => void viewAttachment(active.receiptId!)}
               >
                 <Check size={16} />
-                Ver comprobante
+                {tr("Ver comprobante", "View receipt")}
               </button>
             ) : null}
           </div>
-          <h3 className="detail-history-heading">Historial de esta cuenta</h3>
+          <h3 className="detail-history-heading">{tr("Historial de esta cuenta", "Account history")}</h3>
           <div className="detail-history">
             {invoices
               .filter((i) => groupKey(i) === groupKey(active))
@@ -1083,8 +1091,7 @@ export default function App() {
           </div>
           {demo ? (
             <div className="notice demo-notice">
-              Esta factura es un ejemplo. Añade la tuya para registrar pagos y
-              documentos.
+              {tr("Esta factura es un ejemplo. Añade la tuya para registrar pagos y documentos.", "This is a sample bill. Add yours to record payments and documents.")}
             </div>
           ) : (
             <div className="detail-actions">
@@ -1095,7 +1102,7 @@ export default function App() {
                   onClick={() => void undoPayment(active)}
                 >
                   <RotateCcw size={16} />
-                  Deshacer registro de pago
+                  {tr("Deshacer registro de pago", "Undo payment record")}
                 </button>
               ) : (
                 <button
@@ -1106,7 +1113,7 @@ export default function App() {
                   }}
                 >
                   <Check size={17} />
-                  Marcar como pagada
+                  {tr("Marcar como pagada", "Mark as paid")}
                 </button>
               )}
               <div>
@@ -1116,7 +1123,7 @@ export default function App() {
                     setForm(active);
                     setSelected(null);
                   }}
-                  aria-label="Editar factura"
+                  aria-label={tr("Editar factura", "Edit bill")}
                 >
                   <Pencil size={18} />
                 </button>
@@ -1126,7 +1133,7 @@ export default function App() {
                     setDeleteTarget(active);
                     setSelected(null);
                   }}
-                  aria-label="Eliminar factura"
+                  aria-label={tr("Eliminar factura", "Delete bill")}
                 >
                   <Trash2 size={18} />
                 </button>
@@ -1144,8 +1151,8 @@ export default function App() {
       ) : null}
       {deleteTarget ? (
         <Modal
-          title="Eliminar esta factura"
-          subtitle="También se eliminarán los documentos vinculados de este dispositivo."
+          title={tr("Eliminar esta factura", "Delete this bill")}
+          subtitle={tr("También se eliminarán los documentos vinculados de este dispositivo.", "Linked documents will also be deleted from this device.")}
           onClose={() => {
             if (!mutating) setDeleteTarget(null);
           }}
@@ -1160,14 +1167,14 @@ export default function App() {
               onClick={() => setDeleteTarget(null)}
               disabled={mutating}
             >
-              Conservar
+              {tr("Conservar", "Keep")}
             </button>
             <button
               className="danger-button"
               onClick={() => void removeInvoice()}
               disabled={mutating}
             >
-              Eliminar factura
+              {tr("Eliminar factura", "Delete bill")}
             </button>
           </div>
         </Modal>
@@ -1175,7 +1182,7 @@ export default function App() {
       {document ? (
         <Modal title={document.name} onClose={() => setDocument(null)} wide>
           {document.mime === "application/pdf" ? (
-            <Suspense fallback={<p className="small-note">Abriendo PDF…</p>}>
+            <Suspense fallback={<p className="small-note">{tr("Abriendo PDF…", "Opening PDF…")}</p>}>
               <PDFPreview data={document.data} />
             </Suspense>
           ) : (
@@ -1193,13 +1200,13 @@ export default function App() {
                 await download(document.name, blob);
               } catch {
                 setToast(
-                  "No pudimos preparar el documento para descargar o compartir.",
+                  tr("No pudimos preparar el documento para descargar o compartir.", "We couldn't prepare the document for download or sharing."),
                 );
               }
             }}
           >
             <Download size={17} />
-            Descargar documento
+            {tr("Descargar documento", "Download document")}
           </button>
         </Modal>
       ) : null}
@@ -1220,8 +1227,8 @@ export default function App() {
         />
       ) : modal === "reminders" ? (
         <Modal
-          title="Tus recordatorios"
-          subtitle="Pagos que esperan tu atención."
+          title={tr("Tus recordatorios", "Your reminders")}
+          subtitle={tr("Pagos que esperan tu atención.", "Payments that need your attention.")}
           onClose={() => setModal(null)}
         >
           {invoices
@@ -1238,16 +1245,16 @@ export default function App() {
               />
             ))}
           {!invoices.some((i) => !i.paidDate) ? (
-            <p className="muted">No tienes pagos pendientes.</p>
+            <p className="muted">{tr("No tienes pagos pendientes.", "You have no pending payments.")}</p>
           ) : null}
           <div className="modal-footer">
-            <span>Configura tus avisos</span>
+            <span>{tr("Configura tus avisos", "Set up your alerts")}</span>
             <button
               className="secondary-button"
               onClick={() => setModal("settings")}
             >
               <SettingsIcon size={16} />
-              Ajustes
+              {tr("Ajustes", "Settings")}
             </button>
           </div>
         </Modal>
