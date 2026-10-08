@@ -16,6 +16,7 @@ import { readFile } from "../storage";
 import { request } from "../api";
 import { Modal } from "./UI";
 import type { Attachment, Extraction, Invoice } from "../types";
+import { categoryLabel, language, tr } from "../locale";
 type Props = {
   invoice?: Invoice;
   apiUrl: string;
@@ -67,7 +68,10 @@ export function InvoiceForm({
       const doc = await readFile(file);
       if (hashes.includes(doc.hash) && doc.hash !== invoice?.documentHash)
         throw new Error(
-          "Esta factura ya está en tu archivo. Abre el registro existente.",
+          tr(
+            "Esta factura ya está en tu archivo. Abre el registro existente.",
+            "This bill is already in your archive. Open the existing record.",
+          ),
         );
       setAttachment(doc);
       if (source === "ai") {
@@ -82,7 +86,11 @@ export function InvoiceForm({
       setWarnings([]);
       setSource("manual");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "No pudimos abrir el archivo.");
+      setError(
+        e instanceof Error
+          ? e.message
+          : tr("No pudimos abrir el archivo.", "We couldn't open the file."),
+      );
     } finally {
       setBusy(null);
     }
@@ -114,7 +122,10 @@ export function InvoiceForm({
       );
     } catch {
       setError(
-        "La cámara se cerró o no tiene permiso. Puedes cargar un archivo.",
+        tr(
+          "La cámara se cerró o no tiene permiso. Puedes cargar un archivo.",
+          "The camera was closed or does not have permission. You can upload a file.",
+        ),
       );
     }
   }
@@ -128,7 +139,12 @@ export function InvoiceForm({
       const data = await request<Extraction>(
         "extract",
         apiUrl,
-        { name: attachment.name, mime: attachment.mime, data: attachment.data },
+        {
+          name: attachment.name,
+          mime: attachment.mime,
+          data: attachment.data,
+          language: language(),
+        },
         controller.current.signal,
       );
       setEntity(data.entity || "");
@@ -147,10 +163,13 @@ export function InvoiceForm({
     } catch (e) {
       setError(
         e instanceof DOMException && e.name === "AbortError"
-          ? "La lectura se interrumpió. Puedes intentarlo otra vez o completar los datos."
+          ? tr(
+              "La lectura se interrumpió. Puedes intentarlo otra vez o completar los datos.",
+              "Reading was interrupted. Try again or complete the details manually.",
+            )
           : e instanceof Error
             ? e.message
-            : "No pudimos leer la factura.",
+            : tr("No pudimos leer la factura.", "We couldn't read the bill."),
       );
     } finally {
       clearTimeout(timeout);
@@ -169,11 +188,21 @@ export function InvoiceForm({
       !validDate(dueDate) ||
       (issueDate && !validDate(issueDate))
     ) {
-      setError("Revisa la entidad, el importe y las fechas.");
+      setError(
+        tr(
+          "Revisa la entidad, el importe y las fechas.",
+          "Review the entity, amount, and dates.",
+        ),
+      );
       return;
     }
     if (currency !== "COP") {
-      setError("Confirma que el importe está expresado en pesos colombianos.");
+      setError(
+        tr(
+          "Confirma que el importe está expresado en pesos colombianos.",
+          "Confirm that the amount is in Colombian pesos.",
+        ),
+      );
       return;
     }
     setBusy("save");
@@ -212,15 +241,25 @@ export function InvoiceForm({
         attachment,
       );
     } catch (e) {
-      setError(e instanceof Error ? e.message : "No se pudo guardar.");
+      setError(
+        e instanceof Error
+          ? e.message
+          : tr("No se pudo guardar.", "Could not save."),
+      );
     } finally {
       setBusy(null);
     }
   }
   return (
     <Modal
-      title={invoice ? "Editar factura" : "Nueva factura"}
-      subtitle="Tú confirmas. CuentAI organiza el resto."
+      title={tr(
+        invoice ? "Editar factura" : "Nueva factura",
+        invoice ? "Edit bill" : "New bill",
+      )}
+      subtitle={tr(
+        "Tú confirmas. CuentAI organiza el resto.",
+        "You confirm. CuentAI organizes the rest.",
+      )}
       onClose={close}
       wide
     >
@@ -236,8 +275,8 @@ export function InvoiceForm({
               >
                 <Camera />
                 <span>
-                  <strong>Tomar una foto</strong>
-                  <small>Captura tu factura</small>
+                  <strong>{tr("Tomar una foto", "Take a photo")}</strong>
+                  <small>{tr("Captura tu factura", "Capture your bill")}</small>
                 </span>
               </button>
               <button
@@ -248,8 +287,8 @@ export function InvoiceForm({
               >
                 <FileUp />
                 <span>
-                  <strong>Cargar documento</strong>
-                  <small>PDF o imagen · hasta 12 MB</small>
+                  <strong>{tr("Cargar documento", "Upload document")}</strong>
+                  <small>{tr("PDF o imagen · hasta 12 MB", "PDF or image · up to 12 MB")}</small>
                 </span>
               </button>
             </div>
@@ -279,7 +318,7 @@ export function InvoiceForm({
         {attachment ? (
           <div className="document-card">
             {attachment.mime.startsWith("image/") ? (
-              <img src={attachment.data} alt="Vista previa de tu factura" />
+              <img src={attachment.data} alt={tr("Vista previa de tu factura", "Bill preview")} />
             ) : (
               <FileText size={34} />
             )}
@@ -287,8 +326,8 @@ export function InvoiceForm({
               <strong>{attachment.name}</strong>
               <small>
                 {source === "ai"
-                  ? "Lectura completada · revisa los campos"
-                  : "Documento listo para revisar"}
+                  ? tr("Lectura completada · revisa los campos", "Scan complete · review the fields")
+                  : tr("Documento listo para revisar", "Document ready to review")}
               </small>
             </div>
             <button
@@ -302,24 +341,25 @@ export function InvoiceForm({
               ) : (
                 <Sparkles size={16} />
               )}{" "}
-              {busy === "ai" ? "Leyendo…" : "Leer con IA"}
+              {busy === "ai" ? tr("Leyendo…", "Reading…") : tr("Leer con IA", "Read with AI")}
             </button>
           </div>
         ) : null}
         {attachment && source !== "ai" ? (
           <p className="privacy-note">
-            Al pulsar “Leer con IA”, este documento se envía a OpenAI para
-            extraer los datos. También puedes completarlos manualmente.
+            {tr(
+              "Al pulsar “Leer con IA”, este documento se envía a OpenAI para extraer los datos. También puedes completarlos manualmente.",
+              "When you tap “Read with AI”, this document is sent to OpenAI to extract its data. You can also complete it manually.",
+            )}
           </p>
         ) : null}
         {source === "ai" ? (
           <div className="review-message">
-            <Check size={17} /> Revisa el importe y la fecha antes de guardar.
+            <Check size={17} /> {tr("Revisa el importe y la fecha antes de guardar.", "Review the amount and date before saving.")}
           </div>
         ) : !attachment ? (
           <p className="manual-hint">
-            <PencilLine size={16} /> También puedes registrar los datos sin
-            documento.
+            <PencilLine size={16} /> {tr("También puedes registrar los datos sin documento.", "You can also enter the details without a document.")}
           </p>
         ) : null}
         {warnings.length ? (
@@ -339,7 +379,7 @@ export function InvoiceForm({
         ) : null}
         <div className="form-grid">
           <label className="span-2">
-            Empresa o entidad
+            {tr("Empresa o entidad", "Company or entity")}
             <input
               required
               maxLength={160}
@@ -350,7 +390,7 @@ export function InvoiceForm({
             />
           </label>
           <label>
-            Valor total en COP
+            {tr("Valor total en COP", "Total amount in COP")}
             <input
               required
               inputMode="decimal"
@@ -365,7 +405,7 @@ export function InvoiceForm({
             />
           </label>
           <label>
-            Fecha límite de pago
+            {tr("Fecha límite de pago", "Payment due date")}
             <input
               required
               type="date"
@@ -375,19 +415,19 @@ export function InvoiceForm({
             />
           </label>
           <label>
-            Categoría
+            {tr("Categoría", "Category")}
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               disabled={!!busy}
             >
               {CATEGORIES.map((c) => (
-                <option key={c}>{c}</option>
+                <option key={c} value={c}>{categoryLabel(c)}</option>
               ))}
             </select>
           </label>
           <label>
-            Periodo facturado
+            {tr("Periodo facturado", "Billing period")}
             <input
               type="month"
               required
@@ -404,14 +444,14 @@ export function InvoiceForm({
               checked={false}
               onChange={() => setCurrency("COP")}
             />
-            Confirmo que el importe ingresado está en COP
+            {tr("Confirmo que el importe ingresado está en COP", "I confirm the entered amount is in COP")}
           </label>
         ) : null}
         <details className="extra-fields">
-          <summary>Referencia y otros detalles</summary>
+          <summary>{tr("Referencia y otros detalles", "Reference and other details")}</summary>
           <div className="form-grid">
             <label>
-              Referencia de pago
+              {tr("Referencia de pago", "Payment reference")}
               <input
                 maxLength={160}
                 value={reference}
@@ -420,7 +460,7 @@ export function InvoiceForm({
               />
             </label>
             <label>
-              Fecha de emisión
+              {tr("Fecha de emisión", "Issue date")}
               <input
                 type="date"
                 value={issueDate}
@@ -429,7 +469,7 @@ export function InvoiceForm({
               />
             </label>
             <label className="span-2">
-              Nota opcional
+              {tr("Nota opcional", "Optional note")}
               <textarea
                 maxLength={1000}
                 value={notes}
@@ -441,14 +481,14 @@ export function InvoiceForm({
           </div>
         </details>
         <div className="modal-footer">
-          <span>Se guarda en este dispositivo</span>
+          <span>{tr("Se guarda en este dispositivo", "Saved on this device")}</span>
           <button className="primary-button" disabled={!!busy}>
             {busy === "save" ? (
               <LoaderCircle className="spin" size={17} />
             ) : (
               <Check size={17} />
             )}{" "}
-            {busy === "save" ? "Guardando…" : "Confirmar y guardar"}
+            {busy === "save" ? tr("Guardando…", "Saving…") : tr("Confirmar y guardar", "Confirm and save")}
           </button>
         </div>
       </form>

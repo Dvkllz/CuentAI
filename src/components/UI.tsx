@@ -16,7 +16,13 @@ import {
   Plus,
 } from "lucide-react";
 import type { Invoice } from "../types";
-import { money, invoiceStatus, dateLabel } from "../domain.mjs";
+import {
+  categoryLabel,
+  dateLabel,
+  invoiceStatus,
+  money,
+  tr,
+} from "../locale";
 const icons: Record<string, typeof Zap> = {
   Energía: Zap,
   Agua: Droplets,
@@ -142,7 +148,11 @@ export function Modal({
             <h2>{title}</h2>
             {subtitle ? <p>{subtitle}</p> : null}
           </div>
-          <button className="icon-button" onClick={onClose} aria-label="Cerrar">
+          <button
+            className="icon-button"
+            onClick={onClose}
+            aria-label={tr("Cerrar", "Close")}
+          >
             <X size={21} />
           </button>
         </div>
@@ -165,10 +175,16 @@ export function InvoiceRow({
       <span className="invoice-row-info">
         <strong>{invoice.entity}</strong>
         <small>
-          {invoice.category} ·{" "}
+          {categoryLabel(invoice.category)} ·{" "}
           {invoice.paidDate
-            ? `Pagada ${dateLabel(invoice.paidDate)}`
-            : `Vence ${dateLabel(invoice.dueDate)}`}
+            ? tr(
+                `Pagada ${dateLabel(invoice.paidDate)}`,
+                `Paid ${dateLabel(invoice.paidDate)}`,
+              )
+            : tr(
+                `Vence ${dateLabel(invoice.dueDate)}`,
+                `Due ${dateLabel(invoice.dueDate)}`,
+              )}
         </small>
       </span>
       <span className="invoice-row-value">
