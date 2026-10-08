@@ -827,13 +827,13 @@ export default function App() {
     setToast(tr("Respaldo restaurado. Conservamos tus registros existentes.", "Backup restored. Your existing records were kept."));
   }
   async function saveSettings(settings: Settings) {
+    setActiveLanguage(settings.language);
+    applyTheme(settings.theme);
     if (settings.notifications && !state.settings.notifications)
       await enableNotifications(state.invoices);
     if (!settings.notifications && state.settings.notifications)
       await syncNotifications(state.invoices, false);
     await commit({ ...state, settings });
-    setActiveLanguage(settings.language);
-    applyTheme(settings.theme);
     setToast(tr("Preferencias guardadas.", "Preferences saved."));
   }
   if (!loaded)
