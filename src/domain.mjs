@@ -161,7 +161,8 @@ export function projection(invoices, today = todayISO()) {
     estimatedTotal: estimated.reduce((s, i) => s + i.amount, 0),
   };
 }
-export function calendarICS(invoices) {
+export function calendarICS(invoices, locale = "es") {
+  const english = locale === "en";
   const escape = (text) =>
     text
       .replace(/\\/g, "\\\\")
@@ -175,7 +176,7 @@ export function calendarICS(invoices) {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//CuentAI//Pagos//ES",
+    `PRODID:-//CuentAI//${english ? "Payments//EN" : "Pagos//ES"}`,
     "CALSCALE:GREGORIAN",
   ];
   for (const i of invoices.filter((i) => !i.paidDate)) {
@@ -185,14 +186,14 @@ export function calendarICS(invoices) {
       `DTSTAMP:${stamp}`,
       `DTSTART;VALUE=DATE:${i.dueDate.replaceAll("-", "")}`,
       `DTEND;VALUE=DATE:${addDays(i.dueDate, 1).replaceAll("-", "")}`,
-      `SUMMARY:${escape(`Pagar ${i.entity}`)}`,
-      `DESCRIPTION:${escape(`${money(i.amount)} COP. ${i.category}. Referencia: ${i.reference || "sin referencia"}.`)}`,
+      `SUMMARY:${escape(`${english ? "Pay" : "Pagar"} ${i.entity}`)}`,
+      `DESCRIPTION:${escape(`${money(i.amount)} COP. ${i.category}. ${english ? "Reference" : "Referencia"}: ${i.reference || (english ? "no reference" : "sin referencia")}.`)}`,
     );
     for (const days of [7, 3, 1, 0])
       lines.push(
         "BEGIN:VALARM",
         "ACTION:DISPLAY",
-        `DESCRIPTION:${escape(`Pago de ${i.entity}`)}`,
+        `DESCRIPTION:${escape(`${english ? "Payment to" : "Pago de"} ${i.entity}`)}`,
         `TRIGGER:-P${days}D`,
         "END:VALARM",
       );

@@ -94,3 +94,13 @@ test("calendar exports unpaid obligations with escaped text and alarms", () => {
   assert.equal((text.match(/BEGIN:VEVENT/g) || []).length, 1);
   assert.equal((text.match(/BEGIN:VALARM/g) || []).length, 4);
 });
+
+test("calendar export supports English labels", () => {
+  const text = calendarICS(
+    [record("a", "2026-10-12", 100, { entity: "Power Co." })],
+    "en",
+  );
+  assert.match(text, /SUMMARY:Pay Power Co\./);
+  assert.match(text, /Reference: no reference/);
+  assert.match(text, /DESCRIPTION:Payment to Power Co\./);
+});

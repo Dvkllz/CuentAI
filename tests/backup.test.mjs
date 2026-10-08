@@ -30,6 +30,17 @@ test("restoring a valid backup resets external connection and permissions", () =
   assert.equal(result.state.invoices[0].amount, 184520);
   assert.equal(result.state.settings.apiUrl, "");
   assert.equal(result.state.settings.notifications, false);
+  assert.equal(result.state.settings.language, "es");
+  assert.equal(result.state.settings.theme, "light");
+});
+
+test("restoring preserves supported language and theme preferences", () => {
+  const source = backup();
+  source.settings.language = "en";
+  source.settings.theme = "dark";
+  const result = parseBackup(source);
+  assert.equal(result.state.settings.language, "en");
+  assert.equal(result.state.settings.theme, "dark");
 });
 test("restoring rejects duplicate identities, impossible dates and missing documents", () => {
   assert.throws(() =>

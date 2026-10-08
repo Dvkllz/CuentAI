@@ -61,6 +61,34 @@ test("normalizes dates and warns about foreign currency", () => {
   assert.equal(result.dueDate, null);
   assert.equal(result.warnings.length, 2);
 });
+
+test("extraction requests warnings in the selected language", async () => {
+  const data =
+    "data:application/pdf;base64," +
+    Buffer.from("%PDF-1.4\nexample").toString("base64");
+  let request;
+  await extractInvoice(
+    { name: "bill.pdf", mime: "application/pdf", data, language: "en" },
+    async (body) => {
+      request = body;
+      return JSON.stringify({
+        documentKind: "invoice",
+        entity: "Power Co.",
+        category: "Energía",
+        amount: 100,
+        currency: "COP",
+        dueDate: "2026-10-12",
+        issueDate: null,
+        period: "2026-10",
+        reference: null,
+        minimumPayment: null,
+        warnings: [],
+      });
+    },
+  );
+  assert.match(request.instructions, /advertencias breves en inglés/);
+  assert.equal(request.input[0].content[0].text, "Read this bill for human review.");
+});
 test("local API denies foreign origins, malformed uploads and invalid assistant records", async () => {
   const server = createApp().listen(0, "127.0.0.1");
   await new Promise((resolve) => server.once("listening", resolve));

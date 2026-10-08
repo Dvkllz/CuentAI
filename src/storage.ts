@@ -3,7 +3,10 @@ import { Capacitor } from "@capacitor/core";
 import { tr } from "./locale";
 import type { Language, Theme } from "./locale";
 const preferredTheme = (): Theme =>
-  matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  typeof matchMedia !== "undefined" &&
+  matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 export const emptyState = (): AppState => ({
   version: 1,
   started: false,
