@@ -45,6 +45,8 @@ const schema = z.object({
     income: z.number().nonnegative().max(1e12).nullable(),
     apiUrl: z.string().max(250),
     notifications: z.boolean(),
+    language: z.enum(["es", "en"]).optional().default("es"),
+    theme: z.enum(["light", "dark"]).optional().default("light"),
   }),
   attachments: z.array(attachment).max(1000),
 });

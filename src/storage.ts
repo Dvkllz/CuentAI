@@ -1,10 +1,19 @@
 import type { AppState, Attachment } from "./types";
 import { Capacitor } from "@capacitor/core";
+import type { Language, Theme } from "./locale";
+const preferredTheme = (): Theme =>
+  matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 export const emptyState = (): AppState => ({
   version: 1,
   started: false,
   invoices: [],
-  settings: { income: null, apiUrl: "", notifications: false },
+  settings: {
+    income: null,
+    apiUrl: "",
+    notifications: false,
+    language: "es",
+    theme: preferredTheme(),
+  },
 });
 let connection: Promise<IDBDatabase> | undefined;
 function database() {
@@ -26,7 +35,16 @@ export async function loadState(): Promise<AppState> {
   const db = await database();
   return new Promise((resolve, reject) => {
     const request = db.transaction("state").objectStore("state").get("app");
-    request.onsuccess = () => resolve(request.result || emptyState());
+    request.onsuccess = () => {
+      const stored = request.result as AppState | undefined;
+      if (!stored) return resolve(emptyState());
+      const language: Language = stored.settings.language === "en" ? "en" : "es";
+      const theme: Theme = stored.settings.theme === "dark" ? "dark" : "light";
+      resolve({
+        ...stored,
+        settings: { ...stored.settings, language, theme },
+      });
+    };
     request.onerror = () => reject(request.error);
   });
 }

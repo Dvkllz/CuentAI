@@ -29,6 +29,8 @@ export type Settings = {
   income: number | null;
   apiUrl: string;
   notifications: boolean;
+  language: "es" | "en";
+  theme: "light" | "dark";
 };
 export type AppState = {
   version: 1;
