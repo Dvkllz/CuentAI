@@ -1738,6 +1738,31 @@ main {
   padding-top: 19px;
   margin-top: 21px;
 }
+.appearance-section {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 0;
+  margin-bottom: 21px;
+}
+.preference-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 15px 0 8px;
+}
+.preference-grid label > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.preference-grid select {
+  border: 1px solid #e1e7f2;
+  border-radius: 9px;
+  padding: 10px 11px;
+  min-height: 44px;
+  color: #3d4d69;
+  background: #fdfdff;
+}
 .settings-section h3 {
   display: flex;
   align-items: center;
@@ -2927,4 +2952,143 @@ main {
   padding: 20px;
   font-size: 12px;
   color: #65748b;
+}
+
+/* Dark theme keeps the same calm blue identity with higher contrast surfaces. */
+:root[data-theme="dark"] {
+  color: #edf2ff;
+  background: #0b1020;
+  --muted: #98a5bd;
+  --line: #263149;
+  --green: #76b99f;
+  --shadow: 0 10px 34px #00000030;
+}
+:root[data-theme="dark"] body,
+:root[data-theme="dark"] .app-shell,
+:root[data-theme="dark"] .main-area,
+:root[data-theme="dark"] .loading-screen {
+  background: #0b1020;
+  color: #edf2ff;
+}
+:root[data-theme="dark"] .sidebar,
+:root[data-theme="dark"] .topbar,
+:root[data-theme="dark"] .card,
+:root[data-theme="dark"] .next-card,
+:root[data-theme="dark"] .insight-card,
+:root[data-theme="dark"] .modal,
+:root[data-theme="dark"] .bottom-nav {
+  background: #121a2d;
+  border-color: #263149;
+  color: #edf2ff;
+}
+:root[data-theme="dark"] .sidebar nav button:hover,
+:root[data-theme="dark"] .icon-button:hover,
+:root[data-theme="dark"] .secondary-button:hover,
+:root[data-theme="dark"] .question-chips button:hover {
+  background: #1a2540;
+}
+:root[data-theme="dark"] .sidebar nav button.active,
+:root[data-theme="dark"] .demo-banner,
+:root[data-theme="dark"] .scan-card,
+:root[data-theme="dark"] .assistant-orb,
+:root[data-theme="dark"] .ai-button {
+  background: #17264a;
+  border-color: #2b4070;
+}
+:root[data-theme="dark"] .sidebar-assistant,
+:root[data-theme="dark"] .document-card,
+:root[data-theme="dark"] .detail-note,
+:root[data-theme="dark"] .chat-message.assistant,
+:root[data-theme="dark"] .pdf-preview,
+:root[data-theme="dark"] .document-preview,
+:root[data-theme="dark"] .soft-tag,
+:root[data-theme="dark"] .count-badge {
+  background: #172136;
+  border-color: #263149;
+}
+:root[data-theme="dark"] .chat-message.user,
+:root[data-theme="dark"] .review-message,
+:root[data-theme="dark"] .segmented {
+  background: #182743;
+  border-color: #2b3b5b;
+}
+:root[data-theme="dark"] .segmented button.active {
+  background: #2b3d61;
+  color: #b9ceff;
+}
+:root[data-theme="dark"] .secondary-button,
+:root[data-theme="dark"] .search-input,
+:root[data-theme="dark"] .category-filter,
+:root[data-theme="dark"] .question-chips button,
+:root[data-theme="dark"] .invoice-form input:not([type="checkbox"]),
+:root[data-theme="dark"] .invoice-form select,
+:root[data-theme="dark"] .invoice-form textarea,
+:root[data-theme="dark"] .settings-content input:not([type="checkbox"]),
+:root[data-theme="dark"] .settings-content select,
+:root[data-theme="dark"] .modal > label input,
+:root[data-theme="dark"] .chat-input input {
+  background: #10182a;
+  border-color: #2a3650;
+  color: #e8eefc;
+}
+:root[data-theme="dark"] input[type="date"],
+:root[data-theme="dark"] input[type="month"],
+:root[data-theme="dark"] select {
+  color-scheme: dark;
+}
+:root[data-theme="dark"] .invoice-row,
+:root[data-theme="dark"] .detail-data > div,
+:root[data-theme="dark"] .detail-history > div,
+:root[data-theme="dark"] .change-row {
+  border-color: #263149;
+}
+:root[data-theme="dark"] .modal-backdrop {
+  background: #020611aa;
+}
+:root[data-theme="dark"] .toast {
+  background: #d9e4ff;
+  color: #13213d;
+}
+:root[data-theme="dark"] .muted,
+:root[data-theme="dark"] .eyebrow,
+:root[data-theme="dark"] .topbar-date,
+:root[data-theme="dark"] .sidebar-caption,
+:root[data-theme="dark"] .sidebar nav button,
+:root[data-theme="dark"] .settings-link,
+:root[data-theme="dark"] .screen-heading > div > p:last-child,
+:root[data-theme="dark"] .invoice-row-info small,
+:root[data-theme="dark"] .next-info small,
+:root[data-theme="dark"] .next-footer,
+:root[data-theme="dark"] .local-note,
+:root[data-theme="dark"] .privacy-note,
+:root[data-theme="dark"] .small-note,
+:root[data-theme="dark"] .modal-heading p,
+:root[data-theme="dark"] .settings-content label,
+:root[data-theme="dark"] .invoice-form label,
+:root[data-theme="dark"] .detail-data dt,
+:root[data-theme="dark"] .detail-data dd {
+  color: #9ba9c1;
+}
+:root[data-theme="dark"] .invoice-row-info strong,
+:root[data-theme="dark"] .invoice-row-value strong,
+:root[data-theme="dark"] .section-title h2,
+:root[data-theme="dark"] .modal-heading h2,
+:root[data-theme="dark"] .all-clear h3,
+:root[data-theme="dark"] .scan-card h3,
+:root[data-theme="dark"] .projection-rows strong,
+:root[data-theme="dark"] .category-bar strong,
+:root[data-theme="dark"] .detail-history strong {
+  color: #edf2ff;
+}
+:root[data-theme="dark"] .bottom-nav {
+  background: #10182aee;
+  box-shadow: 0 -8px 30px #00000035;
+}
+@media (max-width: 700px) {
+  :root[data-theme="dark"] {
+    background: #0b1020;
+  }
+  .preference-grid {
+    grid-template-columns: 1fr;
+  }
 }

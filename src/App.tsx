@@ -21,6 +21,9 @@ import {
   ShieldCheck,
   Send,
   ArrowUpRight,
+  Languages,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { Brand, CategoryIcon, Modal, InvoiceRow } from "./components/UI";
 import { InvoiceForm } from "./components/InvoiceForm";
@@ -58,6 +61,7 @@ import {
 import { request } from "./api";
 import { parseBackup } from "./backup";
 import type { AppState, Attachment, Invoice, Settings, Tab } from "./types";
+import { applyTheme, setActiveLanguage, tr } from "./locale";
 const PDFPreview = lazy(() => import("./components/PDFPreview"));
 const tabs = [
   { id: "inicio", label: "Inicio", icon: Home },
@@ -85,6 +89,8 @@ function SettingsModal({
   );
   const [url, setUrl] = useState(settings.apiUrl);
   const [notifications, setNotifications] = useState(settings.notifications);
+  const [language, setLanguage] = useState(settings.language);
+  const [theme, setTheme] = useState(settings.theme);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notificationMessage, setNotificationMessage] = useState("");
@@ -105,7 +111,13 @@ function SettingsModal({
     }
     setBusy(true);
     try {
-      await onSave({ income: value, apiUrl: url.trim(), notifications });
+      await onSave({
+        income: value,
+        apiUrl: url.trim(),
+        notifications,
+        language,
+        theme,
+      });
       onClose();
     } catch (e) {
       setError(e instanceof Error ? e.message : "No pudimos guardar.");
@@ -122,6 +134,34 @@ function SettingsModal({
       }}
     >
       <div className="settings-content">
+        <section className="settings-section appearance-section">
+          <h3>
+            <Sun size={18} /> {tr("Apariencia", "Appearance")}
+          </h3>
+          <div className="preference-grid">
+            <label>
+              <span><Languages size={16} /> {tr("Idioma", "Language")}</span>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as "es" | "en")}
+              >
+                <option value="es">Español</option>
+                <option value="en">English</option>
+              </select>
+            </label>
+            <label>
+              <span>{theme === "dark" ? <Moon size={16} /> : <Sun size={16} />} {tr("Tema", "Theme")}</span>
+              <select
+                value={theme}
+                onChange={(e) => setTheme(e.target.value as "light" | "dark")}
+              >
+                <option value="light">{tr("Claro", "Light")}</option>
+                <option value="dark">{tr("Oscuro", "Dark")}</option>
+              </select>
+            </label>
+          </div>
+          <small>{tr("El cambio se aplicará al guardar.", "Changes apply when you save.")}</small>
+        </section>
         <label>
           Ingreso mensual opcional
           <input
@@ -559,6 +599,8 @@ export default function App() {
   useEffect(() => {
     loadState()
       .then((s) => {
+        setActiveLanguage(s.settings.language);
+        applyTheme(s.settings.theme);
         setState(s);
         setDemo(!s.started && s.invoices.length === 0);
         setLoaded(true);
@@ -570,6 +612,8 @@ export default function App() {
         setLoaded(true);
       });
   }, []);
+  setActiveLanguage(state.settings.language);
+  applyTheme(state.settings.theme);
   useEffect(() => {
     if (!toast) return;
     const timeout = setTimeout(() => setToast(""), 5000);
@@ -780,6 +824,8 @@ export default function App() {
     if (!settings.notifications && state.settings.notifications)
       await syncNotifications(state.invoices, false);
     await commit({ ...state, settings });
+    setActiveLanguage(settings.language);
+    applyTheme(settings.theme);
     setToast("Preferencias guardadas.");
   }
   if (!loaded)
