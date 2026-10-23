@@ -3,11 +3,21 @@ import type { Invoice } from "./types";
 import { money, tr } from "./locale";
 export async function enableNotifications(invoices: Invoice[]) {
   if (!Capacitor.isNativePlatform())
-    throw new Error(tr("En el navegador puedes exportar tus vencimientos al calendario.", "In the browser, you can export due dates to your calendar."));
+    throw new Error(
+      tr(
+        "En el navegador puedes exportar tus vencimientos al calendario.",
+        "In the browser, you can export due dates to your calendar.",
+      ),
+    );
   const { LocalNotifications } = await import("@capacitor/local-notifications");
   const permission = await LocalNotifications.requestPermissions();
   if (permission.display !== "granted")
-    throw new Error(tr("Activa el permiso de notificaciones en los ajustes del teléfono.", "Enable notification permission in your phone settings."));
+    throw new Error(
+      tr(
+        "Activa el permiso de notificaciones en los ajustes del teléfono.",
+        "Enable notification permission in your phone settings.",
+      ),
+    );
   await syncNotifications(invoices);
 }
 export async function syncNotifications(invoices: Invoice[], enabled = true) {
@@ -54,11 +64,21 @@ export async function syncNotifications(invoices: Invoice[], enabled = true) {
 }
 export async function testNotification() {
   if (!Capacitor.isNativePlatform())
-    throw new Error(tr("Prueba disponible en la app para Android.", "This test is available in the Android app."));
+    throw new Error(
+      tr(
+        "Prueba disponible en la app para Android.",
+        "This test is available in the Android app.",
+      ),
+    );
   const { LocalNotifications } = await import("@capacitor/local-notifications");
   const permission = await LocalNotifications.requestPermissions();
   if (permission.display !== "granted")
-    throw new Error(tr("Activa el permiso de notificaciones en los ajustes del teléfono.", "Enable notification permission in your phone settings."));
+    throw new Error(
+      tr(
+        "Activa el permiso de notificaciones en los ajustes del teléfono.",
+        "Enable notification permission in your phone settings.",
+      ),
+    );
   await LocalNotifications.createChannel({
     id: "payments",
     name: tr("Vencimientos", "Due dates"),
@@ -68,8 +88,14 @@ export async function testNotification() {
     notifications: [
       {
         id: 2147483647,
-        title: tr("CuentAI está listo para avisarte", "CuentAI is ready to remind you"),
-        body: tr("Este es tu recordatorio de prueba.", "This is your test reminder."),
+        title: tr(
+          "CuentAI está listo para avisarte",
+          "CuentAI is ready to remind you",
+        ),
+        body: tr(
+          "Este es tu recordatorio de prueba.",
+          "This is your test reminder.",
+        ),
         channelId: "payments",
         isExactNotification: false,
         schedule: { at: new Date(Date.now() + 10000), allowWhileIdle: true },

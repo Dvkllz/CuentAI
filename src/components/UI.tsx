@@ -16,13 +16,7 @@ import {
   Plus,
 } from "lucide-react";
 import type { Invoice } from "../types";
-import {
-  categoryLabel,
-  dateLabel,
-  invoiceStatus,
-  money,
-  tr,
-} from "../locale";
+import { categoryLabel, dateLabel, invoiceStatus, money, tr } from "../locale";
 const icons: Record<string, typeof Zap> = {
   Energía: Zap,
   Agua: Droplets,

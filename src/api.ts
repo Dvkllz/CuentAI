@@ -17,8 +17,7 @@ const serverErrors: Record<string, string> = {
     "Reading could not be completed. You can enter the details manually.",
   "La IA no completó la respuesta. Inténtalo de nuevo.":
     "The AI did not complete the response. Try again.",
-  "No pudimos interpretar el documento.":
-    "We couldn't interpret the document.",
+  "No pudimos interpretar el documento.": "We couldn't interpret the document.",
   "No pudimos completar la operación.": "We couldn't complete the operation.",
 };
 export async function request<T>(
@@ -29,7 +28,12 @@ export async function request<T>(
 ): Promise<T> {
   const base = apiUrl.replace(/\/$/, "");
   if (Capacitor.isNativePlatform() && !base)
-    throw new Error(tr("Configura la dirección del servidor de IA en Ajustes.", "Set the AI server address in Settings."));
+    throw new Error(
+      tr(
+        "Configura la dirección del servidor de IA en Ajustes.",
+        "Set the AI server address in Settings.",
+      ),
+    );
   try {
     const response = await fetch(`${base}/api/${path}`, {
       method: body ? "POST" : "GET",
@@ -42,17 +46,22 @@ export async function request<T>(
       throw new Error(
         result.error
           ? tr(result.error, serverErrors[result.error] || result.error)
-          : tr("No pudimos completar la operación.", "We couldn't complete the operation."),
+          : tr(
+              "No pudimos completar la operación.",
+              "We couldn't complete the operation.",
+            ),
       );
     return result;
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError")
       throw error;
     if (error instanceof TypeError)
-      throw new Error(tr(
-        "No hay conexión con el servidor. Puedes registrar la factura manualmente.",
-        "There is no connection to the server. You can enter the bill manually.",
-      ));
+      throw new Error(
+        tr(
+          "No hay conexión con el servidor. Puedes registrar la factura manualmente.",
+          "There is no connection to the server. You can enter the bill manually.",
+        ),
+      );
     throw error;
   }
 }

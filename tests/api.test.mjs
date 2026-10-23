@@ -87,7 +87,10 @@ test("extraction requests warnings in the selected language", async () => {
     },
   );
   assert.match(request.instructions, /advertencias breves en inglés/);
-  assert.equal(request.input[0].content[0].text, "Read this bill for human review.");
+  assert.equal(
+    request.input[0].content[0].text,
+    "Read this bill for human review.",
+  );
 });
 test("local API denies foreign origins, malformed uploads and invalid assistant records", async () => {
   const server = createApp().listen(0, "127.0.0.1");

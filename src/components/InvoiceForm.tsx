@@ -288,7 +288,12 @@ export function InvoiceForm({
                 <FileUp />
                 <span>
                   <strong>{tr("Cargar documento", "Upload document")}</strong>
-                  <small>{tr("PDF o imagen · hasta 12 MB", "PDF or image · up to 12 MB")}</small>
+                  <small>
+                    {tr(
+                      "PDF o imagen · hasta 12 MB",
+                      "PDF or image · up to 12 MB",
+                    )}
+                  </small>
                 </span>
               </button>
             </div>
@@ -318,7 +323,10 @@ export function InvoiceForm({
         {attachment ? (
           <div className="document-card">
             {attachment.mime.startsWith("image/") ? (
-              <img src={attachment.data} alt={tr("Vista previa de tu factura", "Bill preview")} />
+              <img
+                src={attachment.data}
+                alt={tr("Vista previa de tu factura", "Bill preview")}
+              />
             ) : (
               <FileText size={34} />
             )}
@@ -326,8 +334,14 @@ export function InvoiceForm({
               <strong>{attachment.name}</strong>
               <small>
                 {source === "ai"
-                  ? tr("Lectura completada · revisa los campos", "Scan complete · review the fields")
-                  : tr("Documento listo para revisar", "Document ready to review")}
+                  ? tr(
+                      "Lectura completada · revisa los campos",
+                      "Scan complete · review the fields",
+                    )
+                  : tr(
+                      "Documento listo para revisar",
+                      "Document ready to review",
+                    )}
               </small>
             </div>
             <button
@@ -341,7 +355,9 @@ export function InvoiceForm({
               ) : (
                 <Sparkles size={16} />
               )}{" "}
-              {busy === "ai" ? tr("Leyendo…", "Reading…") : tr("Leer con IA", "Read with AI")}
+              {busy === "ai"
+                ? tr("Leyendo…", "Reading…")
+                : tr("Leer con IA", "Read with AI")}
             </button>
           </div>
         ) : null}
@@ -355,11 +371,19 @@ export function InvoiceForm({
         ) : null}
         {source === "ai" ? (
           <div className="review-message">
-            <Check size={17} /> {tr("Revisa el importe y la fecha antes de guardar.", "Review the amount and date before saving.")}
+            <Check size={17} />{" "}
+            {tr(
+              "Revisa el importe y la fecha antes de guardar.",
+              "Review the amount and date before saving.",
+            )}
           </div>
         ) : !attachment ? (
           <p className="manual-hint">
-            <PencilLine size={16} /> {tr("También puedes registrar los datos sin documento.", "You can also enter the details without a document.")}
+            <PencilLine size={16} />{" "}
+            {tr(
+              "También puedes registrar los datos sin documento.",
+              "You can also enter the details without a document.",
+            )}
           </p>
         ) : null}
         {warnings.length ? (
@@ -422,7 +446,9 @@ export function InvoiceForm({
               disabled={!!busy}
             >
               {CATEGORIES.map((c) => (
-                <option key={c} value={c}>{categoryLabel(c)}</option>
+                <option key={c} value={c}>
+                  {categoryLabel(c)}
+                </option>
               ))}
             </select>
           </label>
@@ -444,11 +470,16 @@ export function InvoiceForm({
               checked={false}
               onChange={() => setCurrency("COP")}
             />
-            {tr("Confirmo que el importe ingresado está en COP", "I confirm the entered amount is in COP")}
+            {tr(
+              "Confirmo que el importe ingresado está en COP",
+              "I confirm the entered amount is in COP",
+            )}
           </label>
         ) : null}
         <details className="extra-fields">
-          <summary>{tr("Referencia y otros detalles", "Reference and other details")}</summary>
+          <summary>
+            {tr("Referencia y otros detalles", "Reference and other details")}
+          </summary>
           <div className="form-grid">
             <label>
               {tr("Referencia de pago", "Payment reference")}
@@ -481,14 +512,18 @@ export function InvoiceForm({
           </div>
         </details>
         <div className="modal-footer">
-          <span>{tr("Se guarda en este dispositivo", "Saved on this device")}</span>
+          <span>
+            {tr("Se guarda en este dispositivo", "Saved on this device")}
+          </span>
           <button className="primary-button" disabled={!!busy}>
             {busy === "save" ? (
               <LoaderCircle className="spin" size={17} />
             ) : (
               <Check size={17} />
             )}{" "}
-            {busy === "save" ? tr("Guardando…", "Saving…") : tr("Confirmar y guardar", "Confirm and save")}
+            {busy === "save"
+              ? tr("Guardando…", "Saving…")
+              : tr("Confirmar y guardar", "Confirm and save")}
           </button>
         </div>
       </form>

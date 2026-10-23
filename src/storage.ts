@@ -42,7 +42,8 @@ export async function loadState(): Promise<AppState> {
     request.onsuccess = () => {
       const stored = request.result as AppState | undefined;
       if (!stored) return resolve(emptyState());
-      const language: Language = stored.settings.language === "en" ? "en" : "es";
+      const language: Language =
+        stored.settings.language === "en" ? "en" : "es";
       const theme: Theme = stored.settings.theme === "dark" ? "dark" : "light";
       resolve({
         ...stored,
@@ -110,9 +111,19 @@ export async function readFile(file: File): Promise<Attachment> {
       file.type,
     )
   )
-    throw new Error(tr("Elige una imagen JPG, PNG, WebP o un PDF.", "Choose a JPG, PNG, WebP image, or a PDF."));
+    throw new Error(
+      tr(
+        "Elige una imagen JPG, PNG, WebP o un PDF.",
+        "Choose a JPG, PNG, WebP image, or a PDF.",
+      ),
+    );
   if (file.size > 12 * 1024 * 1024)
-    throw new Error(tr("El documento supera 12 MB. Usa una foto o un PDF más pequeño.", "The document exceeds 12 MB. Use a smaller photo or PDF."));
+    throw new Error(
+      tr(
+        "El documento supera 12 MB. Usa una foto o un PDF más pequeño.",
+        "The document exceeds 12 MB. Use a smaller photo or PDF.",
+      ),
+    );
   const bytes = await file.arrayBuffer();
   const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))]
     .map((n) => n.toString(16).padStart(2, "0"))
@@ -120,7 +131,12 @@ export async function readFile(file: File): Promise<Attachment> {
   const data = await new Promise<string>((resolve, reject) => {
     const r = new FileReader();
     r.onload = () => resolve(String(r.result));
-    r.onerror = () => reject(new Error(tr("No pudimos leer el archivo.", "We couldn't read the file.")));
+    r.onerror = () =>
+      reject(
+        new Error(
+          tr("No pudimos leer el archivo.", "We couldn't read the file."),
+        ),
+      );
     r.readAsDataURL(file);
   });
   return {

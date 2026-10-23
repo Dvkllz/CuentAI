@@ -55,13 +55,23 @@ export function HomeScreen({
     <>
       <div className="screen-heading">
         <div>
-          <p className="eyebrow">{tr("TU TRANQUILIDAD, EN NÚMEROS", "YOUR PEACE OF MIND, IN NUMBERS")}</p>
+          <p className="eyebrow">
+            {tr(
+              "TU TRANQUILIDAD, EN NÚMEROS",
+              "YOUR PEACE OF MIND, IN NUMBERS",
+            )}
+          </p>
           <h1>
             {tr("Tus cuentas,", "Your bills,")}
             <br className="mobile-only" /> {tr("en calma", "under control")}
             <span className="blue-dot">.</span>
           </h1>
-          <p>{tr("Un lugar para tenerlo todo bajo control.", "One place to keep everything under control.")}</p>
+          <p>
+            {tr(
+              "Un lugar para tenerlo todo bajo control.",
+              "One place to keep everything under control.",
+            )}
+          </p>
         </div>
         <button className="primary-button heading-add" onClick={onAdd}>
           <Plus size={18} />
@@ -84,7 +94,9 @@ export function HomeScreen({
               <span className="live-dot" /> {tr("Tu resumen", "Your summary")}
             </span>
           </div>
-          <p className="summary-label">{tr("Por pagar este mes", "Due this month")}</p>
+          <p className="summary-label">
+            {tr("Por pagar este mes", "Due this month")}
+          </p>
           <div className="hero-amount">{money(summary.pending)}</div>
           <div className="summary-bottom">
             <span>
@@ -131,10 +143,15 @@ export function HomeScreen({
               </div>
               <div className="next-amount">{money(next.amount)}</div>
               <div className="next-footer">
-                <span>{tr("Fecha límite", "Due date")} · {dateLabel(next.dueDate)}</span>
+                <span>
+                  {tr("Fecha límite", "Due date")} · {dateLabel(next.dueDate)}
+                </span>
                 <button
                   onClick={() => onSelect(next.id)}
-                  aria-label={tr(`Ver factura de ${next.entity}`, `View bill from ${next.entity}`)}
+                  aria-label={tr(
+                    `Ver factura de ${next.entity}`,
+                    `View bill from ${next.entity}`,
+                  )}
                 >
                   <ArrowUpRight size={21} />
                 </button>
@@ -143,11 +160,21 @@ export function HomeScreen({
           ) : (
             <div className="all-clear">
               <ShieldCheck size={36} />
-              <h3>{invoices.length ? tr("Todo al día", "All caught up") : tr("Vamos a empezar", "Let's get started")}</h3>
+              <h3>
+                {invoices.length
+                  ? tr("Todo al día", "All caught up")
+                  : tr("Vamos a empezar", "Let's get started")}
+              </h3>
               <p>
                 {invoices.length
-                  ? tr("No tienes pagos pendientes.", "You have no pending payments.")
-                  : tr("Añade una factura para ver tu próximo pago.", "Add a bill to see your next payment.")}
+                  ? tr(
+                      "No tienes pagos pendientes.",
+                      "You have no pending payments.",
+                    )
+                  : tr(
+                      "Añade una factura para ver tu próximo pago.",
+                      "Add a bill to see your next payment.",
+                    )}
               </p>
             </div>
           )}
@@ -175,7 +202,10 @@ export function HomeScreen({
           ) : (
             <Empty
               title={tr("Tu siguiente paso", "Your next step")}
-              text={tr("Fotografía una factura o ingresa sus datos. Nosotros ponemos orden.", "Photograph a bill or enter its details. We'll organize it.")}
+              text={tr(
+                "Fotografía una factura o ingresa sus datos. Nosotros ponemos orden.",
+                "Photograph a bill or enter its details. We'll organize it.",
+              )}
               action={tr("Añadir factura", "Add bill")}
               onAction={onAdd}
             />
@@ -197,11 +227,20 @@ export function HomeScreen({
               <h3>
                 {tr("Una foto.", "One photo.")}
                 <br />
-                {tr("Una cuenta menos en tu cabeza.", "One less bill on your mind.")}
+                {tr(
+                  "Una cuenta menos en tu cabeza.",
+                  "One less bill on your mind.",
+                )}
               </h3>
-              <p>{tr("Digitaliza tu próxima factura.", "Digitize your next bill.")}</p>
+              <p>
+                {tr(
+                  "Digitaliza tu próxima factura.",
+                  "Digitize your next bill.",
+                )}
+              </p>
               <span>
-                {tr("Añadir documento", "Add document")} <ArrowRight size={15} />
+                {tr("Añadir documento", "Add document")}{" "}
+                <ArrowRight size={15} />
               </span>
             </div>
           </button>
@@ -214,15 +253,24 @@ export function HomeScreen({
                 <Sparkles size={20} />
               </span>
               <div>
-                <span className="eyebrow">{tr("UNA MIRADA A TUS GASTOS", "A LOOK AT YOUR SPENDING")}</span>
+                <span className="eyebrow">
+                  {tr("UNA MIRADA A TUS GASTOS", "A LOOK AT YOUR SPENDING")}
+                </span>
                 <h3>
                   {change.current.category}{" "}
                   {change.change > 0 ? tr("subió", "rose") : tr("bajó", "fell")}{" "}
                   {Math.abs(change.change).toFixed(0)} %
                 </h3>
-                <p>{tr("Frente al periodo anterior de", "Compared with the previous period for")} {change.current.entity}.</p>
+                <p>
+                  {tr(
+                    "Frente al periodo anterior de",
+                    "Compared with the previous period for",
+                  )}{" "}
+                  {change.current.entity}.
+                </p>
                 <span>
-                  {tr("Ver comparación", "View comparison")} <ArrowRight size={14} />
+                  {tr("Ver comparación", "View comparison")}{" "}
+                  <ArrowRight size={14} />
                 </span>
               </div>
             </button>
@@ -232,16 +280,27 @@ export function HomeScreen({
                 <Sparkles size={20} />
               </span>
               <div>
-                <span className="eyebrow">{tr("UN POCO DE CLARIDAD", "A LITTLE CLARITY")}</span>
+                <span className="eyebrow">
+                  {tr("UN POCO DE CLARIDAD", "A LITTLE CLARITY")}
+                </span>
                 <h3>{tr("Pregúntale a CuentAI", "Ask CuentAI")}</h3>
-                <p>{tr("Consulta tus pagos sin buscar entre papeles.", "Check your payments without searching through paperwork.")}</p>
+                <p>
+                  {tr(
+                    "Consulta tus pagos sin buscar entre papeles.",
+                    "Check your payments without searching through paperwork.",
+                  )}
+                </p>
               </div>
             </button>
           )}
         </div>
       </div>
       <p className="local-note">
-        <ShieldCheck size={14} /> {tr("Tus documentos se guardan en este dispositivo.", "Your documents are stored on this device.")}
+        <ShieldCheck size={14} />{" "}
+        {tr(
+          "Tus documentos se guardan en este dispositivo.",
+          "Your documents are stored on this device.",
+        )}
       </p>
     </>
   );
@@ -269,11 +328,19 @@ export function CalendarScreen({ invoices, onSelect, onAdd }: Base) {
     <>
       <div className="screen-heading">
         <div>
-          <p className="eyebrow">{tr("CADA PAGO, A SU TIEMPO", "EVERY PAYMENT, ON TIME")}</p>
+          <p className="eyebrow">
+            {tr("CADA PAGO, A SU TIEMPO", "EVERY PAYMENT, ON TIME")}
+          </p>
           <h1>
-            {tr("Calendario", "Calendar")}<span className="blue-dot">.</span>
+            {tr("Calendario", "Calendar")}
+            <span className="blue-dot">.</span>
           </h1>
-          <p>{tr("Tus fechas importantes, a simple vista.", "Your important dates at a glance.")}</p>
+          <p>
+            {tr(
+              "Tus fechas importantes, a simple vista.",
+              "Your important dates at a glance.",
+            )}
+          </p>
         </div>
         <button className="primary-button heading-add" onClick={onAdd}>
           <Plus size={18} />
@@ -320,7 +387,10 @@ export function CalendarScreen({ invoices, onSelect, onAdd }: Base) {
                   onClick={() => setSelected(selected === date ? "" : date)}
                   className={`${date === today ? "today" : ""} ${selected === date ? "selected" : ""}`}
                   aria-pressed={selected === date}
-                  aria-label={tr(`${dateLabel(date)}, ${events.length} facturas`, `${dateLabel(date)}, ${events.length} bills`)}
+                  aria-label={tr(
+                    `${dateLabel(date)}, ${events.length} facturas`,
+                    `${dateLabel(date)}, ${events.length} bills`,
+                  )}
                 >
                   <span>{i + 1}</span>
                   <div className="calendar-dots">
@@ -351,7 +421,9 @@ export function CalendarScreen({ invoices, onSelect, onAdd }: Base) {
         </section>
         <section className="card calendar-list">
           <div className="section-title">
-            <h2>{selected ? dateLabel(selected) : tr("Este mes", "This month")}</h2>
+            <h2>
+              {selected ? dateLabel(selected) : tr("Este mes", "This month")}
+            </h2>
             {selected ? (
               <button className="text-button" onClick={() => setSelected("")}>
                 {tr("Ver mes", "View month")}
@@ -371,7 +443,10 @@ export function CalendarScreen({ invoices, onSelect, onAdd }: Base) {
           ) : (
             <Empty
               title={tr("Sin vencimientos", "No due dates")}
-              text={tr("Las facturas con esta fecha aparecerán aquí.", "Bills due on this date will appear here.")}
+              text={tr(
+                "Las facturas con esta fecha aparecerán aquí.",
+                "Bills due on this date will appear here.",
+              )}
             />
           )}
         </section>
@@ -401,11 +476,19 @@ export function ArchiveScreen({ invoices, onSelect, onAdd }: Base) {
     <>
       <div className="screen-heading">
         <div>
-          <p className="eyebrow">{tr("TODO TIENE SU LUGAR", "EVERYTHING HAS ITS PLACE")}</p>
+          <p className="eyebrow">
+            {tr("TODO TIENE SU LUGAR", "EVERYTHING HAS ITS PLACE")}
+          </p>
           <h1>
-            {tr("Tu archivo", "Your archive")}<span className="blue-dot">.</span>
+            {tr("Tu archivo", "Your archive")}
+            <span className="blue-dot">.</span>
           </h1>
-          <p>{tr("Facturas, comprobantes y un poco más de orden.", "Bills, receipts, and a little more order.")}</p>
+          <p>
+            {tr(
+              "Facturas, comprobantes y un poco más de orden.",
+              "Bills, receipts, and a little more order.",
+            )}
+          </p>
         </div>
         <button className="primary-button heading-add" onClick={onAdd}>
           <Plus size={18} />
@@ -417,7 +500,10 @@ export function ArchiveScreen({ invoices, onSelect, onAdd }: Base) {
           <Search size={19} />
           <input
             aria-label={tr("Buscar facturas", "Search bills")}
-            placeholder={tr("Buscar entidad, categoría o periodo…", "Search entity, category, or period…")}
+            placeholder={tr(
+              "Buscar entidad, categoría o periodo…",
+              "Search entity, category, or period…",
+            )}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -429,9 +515,13 @@ export function ArchiveScreen({ invoices, onSelect, onAdd }: Base) {
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >
-            <option value="Todas">{tr("Todas las categorías", "All categories")}</option>
+            <option value="Todas">
+              {tr("Todas las categorías", "All categories")}
+            </option>
             {categories.map((c) => (
-              <option key={c} value={c}>{categoryLabel(c)}</option>
+              <option key={c} value={c}>
+                {categoryLabel(c)}
+              </option>
             ))}
           </select>
         </label>
@@ -444,16 +534,25 @@ export function ArchiveScreen({ invoices, onSelect, onAdd }: Base) {
             aria-pressed={filter === f}
             onClick={() => setFilter(f)}
           >
-            {f === "Todas" ? tr("Todas", "All") : f === "Pendientes" ? tr("Pendientes", "Pending") : tr("Pagadas", "Paid")}
+            {f === "Todas"
+              ? tr("Todas", "All")
+              : f === "Pendientes"
+                ? tr("Pendientes", "Pending")
+                : tr("Pagadas", "Paid")}
           </button>
         ))}
       </div>
       <section className="card archive-list">
         <div className="section-title">
           <h2>
-            {visible.length} {visible.length === 1 ? tr("factura", "bill") : tr("facturas", "bills")}
+            {visible.length}{" "}
+            {visible.length === 1
+              ? tr("factura", "bill")
+              : tr("facturas", "bills")}
           </h2>
-          <span className="muted">{tr("Ordenadas por vencimiento", "Sorted by due date")}</span>
+          <span className="muted">
+            {tr("Ordenadas por vencimiento", "Sorted by due date")}
+          </span>
         </div>
         {visible.length ? (
           visible.map((i) => (
@@ -468,10 +567,18 @@ export function ArchiveScreen({ invoices, onSelect, onAdd }: Base) {
             }
             text={
               invoices.length
-                ? tr("Prueba con otra búsqueda o categoría.", "Try another search or category.")
-                : tr("Guarda tu primera factura y encuentra sus datos cuando los necesites.", "Save your first bill and find its details whenever you need them.")
+                ? tr(
+                    "Prueba con otra búsqueda o categoría.",
+                    "Try another search or category.",
+                  )
+                : tr(
+                    "Guarda tu primera factura y encuentra sus datos cuando los necesites.",
+                    "Save your first bill and find its details whenever you need them.",
+                  )
             }
-            action={invoices.length ? undefined : tr("Añadir factura", "Add bill")}
+            action={
+              invoices.length ? undefined : tr("Añadir factura", "Add bill")
+            }
             onAction={onAdd}
           />
         )}
@@ -514,11 +621,22 @@ export function AnalysisScreen({
     <>
       <div className="screen-heading">
         <div>
-          <p className="eyebrow">{tr("ENTENDER TAMBIÉN ES AHORRAR CALMA", "UNDERSTANDING BRINGS PEACE OF MIND")}</p>
+          <p className="eyebrow">
+            {tr(
+              "ENTENDER TAMBIÉN ES AHORRAR CALMA",
+              "UNDERSTANDING BRINGS PEACE OF MIND",
+            )}
+          </p>
           <h1>
-            {tr("Una mirada clara", "A clear view")}<span className="blue-dot">.</span>
+            {tr("Una mirada clara", "A clear view")}
+            <span className="blue-dot">.</span>
           </h1>
-          <p>{tr("Lo que sabes hoy. Lo que puedes anticipar.", "What you know today. What you can anticipate.")}</p>
+          <p>
+            {tr(
+              "Lo que sabes hoy. Lo que puedes anticipar.",
+              "What you know today. What you can anticipate.",
+            )}
+          </p>
         </div>
       </div>
       <div className="analysis-grid">
@@ -532,7 +650,12 @@ export function AnalysisScreen({
           <div className="projection-total">
             {money(proj.confirmedTotal + proj.estimatedTotal)}
           </div>
-          <p className="muted">{tr("Obligaciones registradas y estimadas", "Recorded and estimated obligations")}</p>
+          <p className="muted">
+            {tr(
+              "Obligaciones registradas y estimadas",
+              "Recorded and estimated obligations",
+            )}
+          </p>
           <div className="projection-rows">
             <div>
               <span>{tr("Confirmado", "Confirmed")}</span>
@@ -540,14 +663,19 @@ export function AnalysisScreen({
             </div>
             <div>
               <span>
-                {tr("Estimado", "Estimated")} <span className="tiny-tag">{tr("Orientativo", "Guidance")}</span>
+                {tr("Estimado", "Estimated")}{" "}
+                <span className="tiny-tag">
+                  {tr("Orientativo", "Guidance")}
+                </span>
               </span>
               <strong>{money(proj.estimatedTotal)}</strong>
             </div>
             <div>
               <span>{tr("Ingreso registrado", "Recorded income")}</span>
               <button className="text-button" onClick={onSettings}>
-                {income === null ? tr("Añadir ingreso", "Add income") : money(income)}{" "}
+                {income === null
+                  ? tr("Añadir ingreso", "Add income")
+                  : money(income)}{" "}
                 <Wallet size={14} />
               </button>
             </div>
@@ -563,11 +691,17 @@ export function AnalysisScreen({
             </div>
           ) : (
             <p className="small-note">
-              {tr("Añade un ingreso si quieres ver cuánto quedaría después de estos pagos.", "Add your income to see how much would remain after these payments.")}
+              {tr(
+                "Añade un ingreso si quieres ver cuánto quedaría después de estos pagos.",
+                "Add your income to see how much would remain after these payments.",
+              )}
             </p>
           )}
           <p className="small-note">
-            {tr("Proyección de tus registros. Los pagos vencidos se consultan en Inicio.", "Projection based on your records. See overdue payments on Home.")}
+            {tr(
+              "Proyección de tus registros. Los pagos vencidos se consultan en Inicio.",
+              "Projection based on your records. See overdue payments on Home.",
+            )}
           </p>
         </section>
         <section className="card spending-card">
@@ -576,7 +710,9 @@ export function AnalysisScreen({
             <span className="muted">{tr("Este mes", "This month")}</span>
           </div>
           <div className="spending-total">{money(total)}</div>
-          <p className="muted">{tr("Total facturado por fecha límite", "Total billed by due date")}</p>
+          <p className="muted">
+            {tr("Total facturado por fecha límite", "Total billed by due date")}
+          </p>
           {groups.length ? (
             groups.map((g) => (
               <div className="category-bar" key={g.category}>
@@ -594,15 +730,23 @@ export function AnalysisScreen({
             ))
           ) : (
             <Empty
-              title={tr("Tus cifras aparecerán aquí", "Your numbers will appear here")}
-              text={tr("Registra facturas para conocer su distribución.", "Record bills to see their distribution.")}
+              title={tr(
+                "Tus cifras aparecerán aquí",
+                "Your numbers will appear here",
+              )}
+              text={tr(
+                "Registra facturas para conocer su distribución.",
+                "Record bills to see their distribution.",
+              )}
             />
           )}
         </section>
         <section className="card trend-card">
           <div className="section-title">
             <h2>{tr("Tu historial", "Your history")}</h2>
-            <span className="muted">{tr("Importes facturados", "Billed amounts")}</span>
+            <span className="muted">
+              {tr("Importes facturados", "Billed amounts")}
+            </span>
           </div>
           {hist.length ? (
             <div className="history-chart">
@@ -626,11 +770,17 @@ export function AnalysisScreen({
           ) : (
             <Empty
               title={tr("Cada mes cuenta", "Every month counts")}
-              text={tr("El gráfico crece con tus facturas confirmadas.", "The chart grows with your confirmed bills.")}
+              text={tr(
+                "El gráfico crece con tus facturas confirmadas.",
+                "The chart grows with your confirmed bills.",
+              )}
             />
           )}
           <p className="small-note">
-            {tr("Los meses con registros pueden estar incompletos.", "Months with records may be incomplete.")}
+            {tr(
+              "Los meses con registros pueden estar incompletos.",
+              "Months with records may be incomplete.",
+            )}
           </p>
         </section>
         <section className="card insights-list">
@@ -675,7 +825,10 @@ export function AnalysisScreen({
           ) : (
             <Empty
               title={tr("Aún no hay comparaciones", "No comparisons yet")}
-              text={tr("Necesitas al menos dos facturas de la misma entidad y categoría.", "You need at least two bills from the same entity and category.")}
+              text={tr(
+                "Necesitas al menos dos facturas de la misma entidad y categoría.",
+                "You need at least two bills from the same entity and category.",
+              )}
             />
           )}
           {proj.estimated.length ? (
@@ -685,11 +838,14 @@ export function AnalysisScreen({
                 <div key={p.entity + p.category}>
                   <strong>{p.entity}</strong>
                   <p>
-                    {dateLabel(p.from)} — {dateLabel(p.to)} · {tr("cerca de", "around")}{" "}
-                    {money(p.amount)}
+                    {dateLabel(p.from)} — {dateLabel(p.to)} ·{" "}
+                    {tr("cerca de", "around")} {money(p.amount)}
                   </p>
                   <small>
-                    {tr(`Mediana de ${p.samples} facturas mensuales. Puede variar.`, `Median of ${p.samples} monthly bills. It may vary.`)}
+                    {tr(
+                      `Mediana de ${p.samples} facturas mensuales. Puede variar.`,
+                      `Median of ${p.samples} monthly bills. It may vary.`,
+                    )}
                   </small>
                 </div>
               ))}

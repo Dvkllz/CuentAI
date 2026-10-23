@@ -47,7 +47,4 @@ export const projection: (
 export const variations: (
   invoices: Invoice[],
 ) => { current: Invoice; previous: Invoice; change: number }[];
-export const calendarICS: (
-  invoices: Invoice[],
-  locale?: "es" | "en",
-) => string;
+export const calendarICS: (invoices: Invoice[], locale?: "es" | "en") => string;

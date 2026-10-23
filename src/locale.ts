@@ -61,12 +61,8 @@ export function categoryLabel(category: string) {
   return activeLanguage === "en" ? labels[category] || category : category;
 }
 
-export function invoiceStatus(invoice: {
-  paidDate?: string;
-  dueDate: string;
-}) {
-  if (invoice.paidDate)
-    return { text: tr("Pagada", "Paid"), tone: "success" };
+export function invoiceStatus(invoice: { paidDate?: string; dueDate: string }) {
+  if (invoice.paidDate) return { text: tr("Pagada", "Paid"), tone: "success" };
   const days = daysUntil(invoice.dueDate);
   if (days < 0) return { text: tr("Vencida", "Overdue"), tone: "danger" };
   if (days === 0)
@@ -84,6 +80,8 @@ export function invoiceStatus(invoice: {
 export function applyTheme(theme: Theme) {
   document.documentElement.dataset.theme = theme;
   document.documentElement.style.colorScheme = theme;
-  const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  const meta = document.querySelector<HTMLMetaElement>(
+    'meta[name="theme-color"]',
+  );
   meta?.setAttribute("content", theme === "dark" ? "#0b1020" : "#f5f6f8");
 }
