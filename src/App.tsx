@@ -107,6 +107,11 @@ function SettingsModal({
   const [error, setError] = useState("");
   const [notificationMessage, setNotificationMessage] = useState("");
   const importInput = useRef<HTMLInputElement>(null);
+  function close() {
+    setActiveLanguage(settings.language);
+    applyTheme(settings.theme);
+    onClose();
+  }
   async function save() {
     setError("");
     const value = income === "" ? null : Number(income);
@@ -156,7 +161,7 @@ function SettingsModal({
         "Your information. Your preferences.",
       )}
       onClose={() => {
-        if (!busy) onClose();
+        if (!busy) close();
       }}
     >
       <div className="settings-content">
@@ -171,7 +176,11 @@ function SettingsModal({
               </span>
               <select
                 value={language}
-                onChange={(e) => setLanguage(e.target.value as "es" | "en")}
+                onChange={(e) => {
+                  const nextLanguage = e.target.value as "es" | "en";
+                  setLanguage(nextLanguage);
+                  setActiveLanguage(nextLanguage);
+                }}
               >
                 <option value="es">Español</option>
                 <option value="en">English</option>
@@ -184,7 +193,11 @@ function SettingsModal({
               </span>
               <select
                 value={theme}
-                onChange={(e) => setTheme(e.target.value as "light" | "dark")}
+                onChange={(e) => {
+                  const nextTheme = e.target.value as "light" | "dark";
+                  setTheme(nextTheme);
+                  applyTheme(nextTheme);
+                }}
               >
                 <option value="light">{tr("Claro", "Light")}</option>
                 <option value="dark">{tr("Oscuro", "Dark")}</option>
@@ -193,8 +206,8 @@ function SettingsModal({
           </div>
           <small>
             {tr(
-              "El cambio se aplicará al guardar.",
-              "Changes apply when you save.",
+              "Vista previa inmediata. Guarda para conservar los cambios.",
+              "Preview updates instantly. Save to keep your changes.",
             )}
           </small>
         </section>
@@ -1203,6 +1216,14 @@ export default function App() {
             <span>{tr(t.label[0], t.label[1])}</span>
           </button>
         ))}
+        <button
+          className={modal === "settings" ? "active" : ""}
+          onClick={() => setModal("settings")}
+          aria-label={tr("Abrir ajustes", "Open settings")}
+        >
+          <SettingsIcon size={21} />
+          <span>{tr("Ajustes", "Settings")}</span>
+        </button>
       </nav>
       <button
         className="mobile-add"
