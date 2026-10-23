@@ -1,6 +1,6 @@
 # CuentAI
 
-Versión inicial 0.1 de una aplicación para organizar facturas y obligaciones en pesos colombianos. La interfaz se adapta al teléfono y al escritorio, con tipografía de sistema, superficies claras y acentos azules.
+Versión inicial 0.1 de una aplicación para organizar facturas y obligaciones en pesos colombianos. La interfaz se adapta al teléfono y al escritorio, con tipografía de sistema, temas claro y oscuro y acentos azules.
 
 ## Probar la app
 
@@ -21,6 +21,8 @@ La primera visita muestra ejemplos claramente identificados. Pulsa **Usar mis fa
 - Asistente conectado a las facturas registradas y totales calculados por reglas.
 - Respaldo y restauración de registros y documentos; exportación de vencimientos con avisos en formato ICS.
 - Programación de notificaciones locales en Android cuando el usuario las activa.
+- Interfaz completa en español e inglés, incluidas fechas, categorías, notificaciones, extracción con IA y asistente.
+- Tema claro u oscuro persistente en el dispositivo y compatible con respaldos anteriores.
 - Versión web compilada con caché para abrir las pantallas sin conexión. La lectura con IA requiere conexión.
 
 ## Desarrollo
@@ -54,6 +56,8 @@ Para compilar usa Java 21, Android SDK 36 y `scripts/build-android.ps1`. Las her
 
 En el teléfono, configura la dirección HTTPS de tu servidor en **Ajustes → Conexión al servidor de IA**. Para pruebas en la red local se puede iniciar el servidor con `HOST=0.0.0.0` y la configuración de Android correspondiente. La versión inicial no incorpora autenticación; antes de publicar el servidor fuera del equipo hay que añadir autenticación y controles de acceso. `ALLOWED_ORIGINS` admite una lista de orígenes separados por comas.
 
+El idioma y el tema se cambian en **Ajustes → Apariencia**. Ambas preferencias se guardan en IndexedDB. El idioma seleccionado también controla el texto generado por el asistente, las advertencias de extracción, las notificaciones y los calendarios exportados.
+
 ## Datos y límites
 
 Los documentos se guardan en IndexedDB, dentro del almacenamiento de la app o navegador. No hay sincronización entre dispositivos ni cifrado adicional de la aplicación. Al borrar los datos del navegador o desinstalar la app se puede perder el archivo: conserva un respaldo.
@@ -64,6 +68,6 @@ CuentAI registra pagos realizados por el usuario; no ejecuta pagos bancarios. La
 
 ## Verificación
 
-Las pruebas automatizadas verifican fechas, totales, recurrencia, comparación, exportación de calendario, validación de archivos, respaldo y restricciones del servidor. La revisión en navegador comprobó lectura real de una factura de prueba, confirmación, pago con comprobante y persistencia tras recargar, además de la interfaz móvil.
+Las pruebas automatizadas verifican fechas, totales, recurrencia, comparación, exportación bilingüe de calendario, preferencias de idioma y tema, validación de archivos, respaldo y restricciones del servidor. La revisión en navegador comprobó lectura real de una factura de prueba, confirmación, pago con comprobante y persistencia tras recargar, además de la interfaz móvil.
 
 Referencias de implementación: [OpenAI Responses y archivos](https://developers.openai.com/api/docs/guides/file-inputs), [salidas estructuradas](https://developers.openai.com/api/docs/guides/structured-outputs), [Capacitor](https://capacitorjs.com/docs), [PDF.js](https://mozilla.github.io/pdf.js/examples/).

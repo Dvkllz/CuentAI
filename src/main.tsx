@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import { Capacitor } from "@capacitor/core";
 import "./styles.css";
+import { tr } from "./locale";
 class ErrorBoundary extends Component<
   { children: ReactNode },
   { error: boolean }
@@ -15,10 +16,10 @@ class ErrorBoundary extends Component<
   render() {
     return this.state.error ? (
       <div className="loading-screen">
-        <h1>No pudimos abrir CuentAI</h1>
-        <p>Tus registros guardados siguen en este dispositivo.</p>
+        <h1>{tr("No pudimos abrir CuentAI", "We couldn't open CuentAI")}</h1>
+        <p>{tr("Tus registros guardados siguen en este dispositivo.", "Your saved records are still on this device.")}</p>
         <button className="primary-button" onClick={() => location.reload()}>
-          Volver a intentar
+          {tr("Volver a intentar", "Try again")}
         </button>
       </div>
     ) : (

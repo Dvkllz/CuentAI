@@ -736,6 +736,10 @@ export default function App() {
   useLayoutEffect(() => {
     setActiveLanguage(state.settings.language);
     applyTheme(state.settings.theme);
+    document.title = tr(
+      "CuentAI · Tus cuentas en calma",
+      "CuentAI · Bills under control",
+    );
   }, [state.settings.language, state.settings.theme]);
   useEffect(() => {
     if (!toast) return;
