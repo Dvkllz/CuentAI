@@ -17,7 +17,12 @@ class ErrorBoundary extends Component<
     return this.state.error ? (
       <div className="loading-screen">
         <h1>{tr("No pudimos abrir CuentAI", "We couldn't open CuentAI")}</h1>
-        <p>{tr("Tus registros guardados siguen en este dispositivo.", "Your saved records are still on this device.")}</p>
+        <p>
+          {tr(
+            "Tus registros guardados siguen en este dispositivo.",
+            "Your saved records are still on this device.",
+          )}
+        </p>
         <button className="primary-button" onClick={() => location.reload()}>
           {tr("Volver a intentar", "Try again")}
         </button>
