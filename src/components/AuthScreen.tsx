@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRight, LockKeyhole, Mail, Server, UserRound } from "lucide-react";
+import { ArrowRight, LockKeyhole, Mail, UserRound } from "lucide-react";
 import { authRequest, saveAuthSession } from "../auth";
 import type { AuthResult } from "../auth";
 import type { AuthUser } from "../types";
@@ -8,11 +8,9 @@ import { Brand } from "./UI";
 
 export function AuthScreen({
   apiUrl,
-  onServerChange,
   onAuthenticated,
 }: {
   apiUrl: string;
-  onServerChange: (url: string) => Promise<void>;
   onAuthenticated: (user: AuthUser) => void;
 }) {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -20,7 +18,6 @@ export function AuthScreen({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [server, setServer] = useState(apiUrl);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -40,17 +37,9 @@ export function AuthScreen({
       );
       return;
     }
-    const cleanServer = server.trim().replace(/\/$/, "");
-    if (cleanServer && !/^https?:\/\/[^\s]+$/.test(cleanServer)) {
-      setError(
-        tr("Revisa la dirección del servidor.", "Review the server address."),
-      );
-      return;
-    }
     setBusy(true);
     try {
-      await onServerChange(cleanServer);
-      const result = await authRequest<AuthResult>(mode, cleanServer, {
+      const result = await authRequest<AuthResult>(mode, apiUrl, {
         ...(mode === "register" ? { name: name.trim() } : {}),
         email: email.trim(),
         password,
@@ -200,21 +189,6 @@ export function AuthScreen({
             {!busy ? <ArrowRight size={18} /> : null}
           </button>
         </form>
-        <details className="auth-server">
-          <summary>
-            <Server size={15} />{" "}
-            {tr("Conexión al servidor", "Server connection")}
-          </summary>
-          <label>
-            <span>{tr("Dirección", "Address")}</span>
-            <input
-              value={server}
-              onChange={(event) => setServer(event.target.value)}
-              inputMode="url"
-              placeholder="http://192.168.0.116:5174"
-            />
-          </label>
-        </details>
         <p className="auth-note">
           {tr(
             "Para esta prueba local usa una contraseña que no reutilices en otros servicios.",

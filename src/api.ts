@@ -32,8 +32,8 @@ export async function request<T>(
   if (Capacitor.isNativePlatform() && !base)
     throw new Error(
       tr(
-        "Configura la dirección del servidor de IA en Ajustes.",
-        "Set the AI server address in Settings.",
+        "El servidor de IA no está disponible en esta versión.",
+        "The AI server is not available in this build.",
       ),
     );
   try {

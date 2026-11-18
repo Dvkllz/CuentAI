@@ -53,8 +53,8 @@ export async function authRequest<T>(
   if (Capacitor.isNativePlatform() && !base)
     throw new Error(
       tr(
-        "Configura la dirección del servidor para continuar.",
-        "Set the server address to continue.",
+        "El servidor de CuentAI no está disponible en esta versión.",
+        "The CuentAI server is not available in this build.",
       ),
     );
   try {

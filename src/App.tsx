@@ -116,7 +116,6 @@ function SettingsModal({
   const [income, setIncome] = useState(
     settings.income === null ? "" : String(settings.income),
   );
-  const [url, setUrl] = useState(settings.apiUrl);
   const [notifications, setNotifications] = useState(settings.notifications);
   const [language, setLanguage] = useState(settings.language);
   const [theme, setTheme] = useState(settings.theme);
@@ -141,20 +140,11 @@ function SettingsModal({
       );
       return;
     }
-    if (url && !/^https?:\/\/[^\s]+$/.test(url)) {
-      setError(
-        tr(
-          "Usa una dirección válida que empiece por https:// o http://.",
-          "Use a valid address beginning with https:// or http://.",
-        ),
-      );
-      return;
-    }
     setBusy(true);
     try {
       await onSave({
         income: value,
-        apiUrl: url.trim(),
+        apiUrl: settings.apiUrl,
         notifications,
         language,
         theme,
@@ -404,32 +394,13 @@ function SettingsModal({
             }}
           />
         </section>
-        <details className="extra-fields">
-          <summary>
-            {tr("Conexión al servidor de IA", "AI server connection")}
-          </summary>
-          <label>
-            {tr("Dirección del servidor", "Server address")}
-            <input
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://tu-servidor.com"
-            />
-            <small>
-              {tr(
-                "En este navegador puedes dejarla vacía. En Android usa la dirección de tu servidor. La clave permanece en el servidor.",
-                "You can leave this blank in the browser. On Android, enter your server address. The key stays on the server.",
-              )}
-            </small>
-          </label>
-        </details>
         {error ? (
           <p className="form-error" role="alert">
             {error}
           </p>
         ) : null}
         <div className="modal-footer">
-          <span>CuentAI · {tr("versión", "version")} 0.2.0</span>
+          <span>CuentAI · {tr("versión", "version")} 0.2.1</span>
           <button className="primary-button" onClick={save} disabled={busy}>
             {busy ? (
               <LoaderCircle size={16} className="spin" />
@@ -1107,14 +1078,6 @@ export default function App() {
     await commit({ ...state, settings });
     setToast(tr("Preferencias guardadas.", "Preferences saved."));
   }
-  async function saveAuthServer(apiUrl: string) {
-    const next = {
-      ...state,
-      settings: { ...state.settings, apiUrl },
-    };
-    await saveState(next);
-    setState(next);
-  }
   async function logout() {
     try {
       await endSession(state.settings.apiUrl);
@@ -1146,7 +1109,6 @@ export default function App() {
     return (
       <AuthScreen
         apiUrl={state.settings.apiUrl}
-        onServerChange={saveAuthServer}
         onAuthenticated={authenticated}
       />
     );
@@ -1194,7 +1156,7 @@ export default function App() {
           >
             <SettingsIcon size={18} />
             {tr("Ajustes", "Settings")}
-            <span>0.2.0</span>
+            <span>0.2.1</span>
           </button>
         </div>
       </aside>
