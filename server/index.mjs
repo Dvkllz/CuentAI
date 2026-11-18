@@ -66,7 +66,7 @@ export function createApp({ authFile } = {}) {
     },
   );
   app.get("/api/health", (_req, res) =>
-    res.json({ ready: Boolean(process.env.OPENAI_API_KEY), version: "0.2.2" }),
+    res.json({ ready: Boolean(process.env.OPENAI_API_KEY), version: "0.2.3" }),
   );
   app.post("/api/auth/register", async (req, res, next) => {
     try {

@@ -2,7 +2,7 @@
 
 ## Instalar
 
-1. Descarga **CuentAI-0.2.2-test.apk** desde la sección [Releases](https://github.com/Dvkllz/CuentAI/releases).
+1. Descarga **CuentAI-0.2.3-test.apk** desde la sección [Releases](https://github.com/Dvkllz/CuentAI/releases).
 2. Abre el APK en tu teléfono y permite instalar desde el navegador o gestor de archivos que hayas usado.
 3. Abre CuentAI. Requiere Android 7 o posterior. Esta compilación está firmada para pruebas y no es una publicación de Google Play.
 
@@ -38,6 +38,6 @@ Instala Node.js 24, pnpm, Java 21, Android SDK 36 y Build Tools 36.0.0. Ejecuta 
 powershell -ExecutionPolicy Bypass -File scripts/build-android.ps1 -SdkRoot "C:\ruta\android-sdk" -JavaHome "C:\ruta\jdk-21"
 ```
 
-El resultado está en `releases/CuentAI-0.2.2-test.apk`, con su suma SHA-256. Conserva tu clave de firma de prueba para poder actualizar una instalación existente sin desinstalarla.
+El resultado está en `releases/CuentAI-0.2.3-test.apk`, con su suma SHA-256. Conserva tu clave de firma de prueba para poder actualizar una instalación existente sin desinstalarla.
 
 En el emulador oficial de Android Studio, CuentAI prueba automáticamente el túnel de `adb` y `10.0.2.2` si la dirección Wi-Fi del computador no responde. No hace falta configurar una dirección dentro de la app.

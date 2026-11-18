@@ -400,7 +400,7 @@ function SettingsModal({
           </p>
         ) : null}
         <div className="modal-footer">
-          <span>CuentAI · {tr("versión", "version")} 0.2.2</span>
+          <span>CuentAI · {tr("versión", "version")} 0.2.3</span>
           <button className="primary-button" onClick={save} disabled={busy}>
             {busy ? (
               <LoaderCircle size={16} className="spin" />
@@ -1156,7 +1156,7 @@ export default function App() {
           >
             <SettingsIcon size={18} />
             {tr("Ajustes", "Settings")}
-            <span>0.2.2</span>
+            <span>0.2.3</span>
           </button>
         </div>
       </aside>
