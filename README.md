@@ -57,7 +57,7 @@ El APK de prueba se distribuye en [Releases](https://github.com/Dvkllz/CuentAI/r
 
 Para compilar usa Java 21, Android SDK 36 y `scripts/build-android.ps1`. Las herramientas locales están en `.tools/` y excluidas del repositorio. El APK usa firma de depuración.
 
-En el teléfono, configura la dirección HTTPS de tu servidor en la pantalla de acceso o en **Ajustes → Conexión al servidor de IA**. Para una prueba local, compila con `VITE_DEFAULT_API_URL` apuntando a la IP Wi-Fi del computador y ejecuta `pnpm android:server`. La compilación de depuración permite HTTP dentro de la red local. En ese modo, usa una contraseña exclusiva de prueba: HTTP no cifra las credenciales. Una publicación real debe usar HTTPS y almacenamiento administrado para cuentas. `ALLOWED_ORIGINS` admite una lista de orígenes separados por comas.
+La dirección del servidor no se muestra en la interfaz. Para una prueba local, compila con `VITE_DEFAULT_API_URL` apuntando a la IP Wi-Fi del computador y ejecuta `pnpm android:server`. La compilación de depuración permite HTTP dentro de la red local. En ese modo, usa una contraseña exclusiva de prueba: HTTP no cifra las credenciales. Una publicación real debe usar HTTPS y almacenamiento administrado para cuentas. `ALLOWED_ORIGINS` admite una lista de orígenes separados por comas.
 
 El idioma y el tema se cambian en **Ajustes → Apariencia**. Ambas preferencias se guardan en IndexedDB. El idioma seleccionado también controla el texto generado por el asistente, las advertencias de extracción, las notificaciones y los calendarios exportados.
 

@@ -104,7 +104,7 @@ test("local API protects accounts, AI endpoints and credentials", async () => {
   try {
     const health = await fetch(url + "/api/health");
     assert.equal(health.status, 200);
-    assert.equal((await health.json()).version, "0.2.0");
+    assert.equal((await health.json()).version, "0.2.1");
     const forbidden = await fetch(url + "/api/health", {
       headers: { Origin: "https://untrusted.example" },
     });
