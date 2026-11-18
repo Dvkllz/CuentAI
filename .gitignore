@@ -5,10 +5,11 @@ dist/
 .env
 .env.*
 !.env.example
+.data/
 *.log
 artifacts/
 .tools/
-.gradle-user/
+.gradle-user*/
 releases/
 *.jks
 *.keystore

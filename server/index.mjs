@@ -2,13 +2,16 @@ import express from "express";
 import dotenv from "dotenv";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ZodError } from "zod";
 import { extractInvoice, askAssistant, assistantInput } from "./extraction.mjs";
+import { bearerToken, createAuthStore } from "./auth.mjs";
 dotenv.config({ path: ".env.local", quiet: true });
 const androidTestMode = process.argv.includes("--android");
 const configuredPort = () =>
   Number(process.env.PORT || (androidTestMode ? 5174 : 5173));
-export function createApp() {
+export function createApp({ authFile } = {}) {
   const app = express();
+  const auth = createAuthStore(authFile);
   app.disable("x-powered-by");
   const port = configuredPort();
   const allowed = new Set([
@@ -26,7 +29,7 @@ export function createApp() {
     if (origin) {
       res.set("Access-Control-Allow-Origin", origin);
       res.set("Vary", "Origin");
-      res.set("Access-Control-Allow-Headers", "Content-Type");
+      res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
       res.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
     }
     if (req.method === "OPTIONS") return res.sendStatus(204);
@@ -36,32 +39,76 @@ export function createApp() {
   app.use(express.json({ limit: "18mb" }));
   const counts = new Map();
   let concurrent = 0;
-  app.use(["/api/extract", "/api/assistant"], (req, res, next) => {
-    const now = Date.now();
-    for (const [k, v] of counts) if (now - v.at > 60000) counts.delete(k);
-    const key = req.ip;
-    const record = counts.get(key) || { at: now, count: 0 };
-    record.count++;
-    counts.set(key, record);
-    if (record.count > 15 || concurrent >= 2)
-      return res.status(429).json({
-        error: "Hay varias solicitudes en curso. Espera unos segundos.",
-      });
-    concurrent++;
-    let released = false;
-    const release = () => {
-      if (!released) {
-        released = true;
-        concurrent--;
-      }
-    };
-    res.once("finish", release);
-    res.once("close", release);
-    next();
-  });
-  app.get("/api/health", (_req, res) =>
-    res.json({ ready: Boolean(process.env.OPENAI_API_KEY), version: "0.1.1" }),
+  app.use(
+    ["/api/auth/register", "/api/auth/login", "/api/extract", "/api/assistant"],
+    (req, res, next) => {
+      const now = Date.now();
+      for (const [k, v] of counts) if (now - v.at > 60000) counts.delete(k);
+      const key = req.ip;
+      const record = counts.get(key) || { at: now, count: 0 };
+      record.count++;
+      counts.set(key, record);
+      if (record.count > 15 || concurrent >= 2)
+        return res.status(429).json({
+          error: "Hay varias solicitudes en curso. Espera unos segundos.",
+        });
+      concurrent++;
+      let released = false;
+      const release = () => {
+        if (!released) {
+          released = true;
+          concurrent--;
+        }
+      };
+      res.once("finish", release);
+      res.once("close", release);
+      next();
+    },
   );
+  app.get("/api/health", (_req, res) =>
+    res.json({ ready: Boolean(process.env.OPENAI_API_KEY), version: "0.2.0" }),
+  );
+  app.post("/api/auth/register", async (req, res, next) => {
+    try {
+      res.status(201).json(await auth.register(req.body));
+    } catch (error) {
+      next(error);
+    }
+  });
+  app.post("/api/auth/login", async (req, res, next) => {
+    try {
+      res.json(await auth.login(req.body));
+    } catch (error) {
+      next(error);
+    }
+  });
+  async function requireAuth(req, res, next) {
+    try {
+      const token = bearerToken(req);
+      const user = await auth.authenticate(token);
+      if (!user)
+        return res.status(401).json({
+          error: "Inicia sesión para continuar.",
+          code: "AUTH_REQUIRED",
+        });
+      req.auth = { token, user };
+      next();
+    } catch (error) {
+      next(error);
+    }
+  }
+  app.get("/api/auth/me", requireAuth, (req, res) =>
+    res.json({ user: req.auth.user }),
+  );
+  app.post("/api/auth/logout", requireAuth, async (req, res, next) => {
+    try {
+      await auth.logout(req.auth.token);
+      res.sendStatus(204);
+    } catch (error) {
+      next(error);
+    }
+  });
+  app.use(["/api/extract", "/api/assistant"], requireAuth);
   app.post("/api/extract", async (req, res, next) => {
     try {
       res.json(await extractInvoice(req.body));
@@ -85,15 +132,17 @@ export function createApp() {
     res.status(404).json({ error: "Ruta no disponible." }),
   );
   app.use((err, _req, res, _next) => {
+    const invalidInput = err instanceof ZodError;
     const status =
-      err.type === "entity.too.large"
-        ? 413
-        : err.type === "entity.parse.failed"
-          ? 400
+      invalidInput || err.type === "entity.parse.failed"
+        ? 400
+        : err.type === "entity.too.large"
+          ? 413
           : err.status || 500;
     res.status(status).json({
-      error:
-        status === 413
+      error: invalidInput
+        ? "Los datos enviados no son válidos."
+        : status === 413
           ? "El archivo supera el tamaño permitido."
           : status === 500
             ? "No pudimos completar la operación."

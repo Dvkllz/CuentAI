@@ -40,11 +40,30 @@ function createTestPdf() {
 }
 
 const document = createTestPdf();
+const credentials = {
+  name: "Prueba CuentAI",
+  email: `smoke-${Date.now()}@example.com`,
+  password: `test-only-${crypto.randomUUID()}`,
+};
+const registration = await fetch(`${baseUrl}/api/auth/register`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Origin: "https://localhost",
+  },
+  body: JSON.stringify(credentials),
+  signal: AbortSignal.timeout(20000),
+});
+const account = await registration.json();
+if (!registration.ok)
+  throw new Error(account.error || `Registro HTTP ${registration.status}`);
+
 const response = await fetch(`${baseUrl}/api/extract`, {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
     Origin: "https://localhost",
+    Authorization: `Bearer ${account.token}`,
   },
   body: JSON.stringify({
     name: "factura-demo.pdf",
