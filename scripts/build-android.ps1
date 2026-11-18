@@ -1,4 +1,4 @@
-param([string]$SdkRoot, [string]$JavaHome)
+param([string]$SdkRoot, [string]$JavaHome, [string]$ApiUrl)
 $ErrorActionPreference = 'Stop'
 $taskRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $taskRoot
@@ -20,6 +20,15 @@ $taskBundled = Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-r
 $taskNode = if ($taskNodeCommand) { $taskNodeCommand.Source } else { "$taskBundled\bin\node.exe" }
 if (-not (Test-Path $taskNode)) { throw 'Instala Node.js 24.' }
 $env:PATH = (Split-Path -Parent $taskNode) + ';' + $JavaHome + '\bin;' + $env:PATH
+if (-not $ApiUrl) {
+  $taskIP = Get-NetIPConfiguration | Where-Object {
+    $_.NetAdapter.Status -eq 'Up' -and $_.IPv4DefaultGateway -and $_.IPv4Address
+  } | ForEach-Object { $_.IPv4Address } | Select-Object -First 1
+  if (-not $taskIP) { throw 'Conecta el computador a la red Wi-Fi o pasa -ApiUrl.' }
+  $ApiUrl = 'http://' + $taskIP.IPAddress + ':5174'
+}
+if ($ApiUrl -notmatch '^https?://[^\s]+$') { throw 'ApiUrl debe comenzar por http:// o https://.' }
+$env:VITE_DEFAULT_API_URL = $ApiUrl.TrimEnd('/')
 $taskPnpmCommand = Get-Command pnpm -ErrorAction SilentlyContinue
 if ($taskPnpmCommand) { & $taskPnpmCommand.Source build }
 else { & $taskNode "$taskBundled\node_modules\pnpm\bin\pnpm.cjs" build }
@@ -35,10 +44,12 @@ try {
   if ($LASTEXITCODE -ne 0) { throw 'Falló la compilación del APK.' }
 } finally { Pop-Location }
 New-Item -ItemType Directory -Path releases -Force | Out-Null
-$taskApk = Join-Path $taskRoot 'releases\CuentAI-0.1.0-test.apk'
+$taskVersion = (Get-Content "$taskRoot\package.json" | ConvertFrom-Json).version
+$taskApkName = "CuentAI-$taskVersion-test.apk"
+$taskApk = Join-Path $taskRoot ("releases\" + $taskApkName)
 Copy-Item -LiteralPath android/app/build/outputs/apk/debug/app-debug.apk -Destination $taskApk -Force
 & "$SdkRoot\build-tools\36.0.0\apksigner.bat" verify --verbose $taskApk
 if ($LASTEXITCODE -ne 0) { throw 'La firma del APK no es válida.' }
 $taskHash = (Get-FileHash -LiteralPath $taskApk -Algorithm SHA256).Hash.ToLower()
-"$taskHash  CuentAI-0.1.0-test.apk" | Set-Content releases/SHA256SUMS.txt -Encoding ascii
+"$taskHash  $taskApkName" | Set-Content releases/SHA256SUMS.txt -Encoding ascii
 Write-Host "APK de prueba listo: $taskApk"

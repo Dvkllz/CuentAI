@@ -2,7 +2,7 @@
 
 ## Instalar
 
-1. Descarga **CuentAI-0.1.0-test.apk** desde la sección [Releases](https://github.com/Dvkllz/CuentAI/releases).
+1. Descarga **CuentAI-0.1.1-test.apk** desde la sección [Releases](https://github.com/Dvkllz/CuentAI/releases).
 2. Abre el APK en tu teléfono y permite instalar desde el navegador o gestor de archivos que hayas usado.
 3. Abre CuentAI. Requiere Android 7 o posterior. Esta compilación está firmada para pruebas y no es una publicación de Google Play.
 
@@ -12,7 +12,7 @@ El APK incluye la interfaz y guarda las facturas en el teléfono. La lectura con
 
 1. En el computador, ejecuta **Servidor para Android.cmd**. La clave debe estar configurada en `.env.local`.
 2. Conecta computador y teléfono a la misma red Wi-Fi.
-3. Copia la dirección que muestra la ventana en **Ajustes → Conexión al servidor de IA**, en Android, y guarda los ajustes.
+3. Esta APK ya incluye la dirección de este computador. Si cambia la red, copia la dirección que muestra la ventana en **Ajustes → Conexión al servidor de IA** y guarda los ajustes.
 4. Si Windows pregunta por el acceso a la red, permite el servidor únicamente en tu red privada. Si no conecta, revisa el firewall, la dirección y que la red no aísle los dispositivos.
 
 La dirección comienza por `http://` para esta prueba local. Solo el APK de prueba permite HTTP; una distribución final debe usar un servidor HTTPS con autenticación. Mantén el computador encendido al usar las funciones de IA. La captura, los registros manuales y los recordatorios guardados funcionan sin el servidor.
@@ -37,4 +37,4 @@ Instala Node.js 24, pnpm, Java 21, Android SDK 36 y Build Tools 36.0.0. Ejecuta 
 powershell -ExecutionPolicy Bypass -File scripts/build-android.ps1 -SdkRoot "C:\ruta\android-sdk" -JavaHome "C:\ruta\jdk-21"
 ```
 
-El resultado está en `releases/CuentAI-0.1.0-test.apk`, con su suma SHA-256. Conserva tu clave de firma de prueba para poder actualizar una instalación existente sin desinstalarla.
+El resultado está en `releases/CuentAI-0.1.1-test.apk`, con su suma SHA-256. Conserva tu clave de firma de prueba para poder actualizar una instalación existente sin desinstalarla.

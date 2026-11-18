@@ -48,13 +48,14 @@ El proyecto nativo está en `android/`, con identidad `com.cuentai.app`. Incluye
 ```sh
 pnpm android:sync
 pnpm android:open
+pnpm android:server
 ```
 
 El APK de prueba se distribuye en [Releases](https://github.com/Dvkllz/CuentAI/releases). Consulta [la guía de prueba Android](docs/PRUEBA_ANDROID.md) para instalarlo, conectar la IA por Wi-Fi y probar las notificaciones. Las funciones nativas todavía requieren comprobación en un teléfono o emulador.
 
 Para compilar usa Java 21, Android SDK 36 y `scripts/build-android.ps1`. Las herramientas locales están en `.tools/` y excluidas del repositorio. El APK usa firma de depuración.
 
-En el teléfono, configura la dirección HTTPS de tu servidor en **Ajustes → Conexión al servidor de IA**. Para pruebas en la red local se puede iniciar el servidor con `HOST=0.0.0.0` y la configuración de Android correspondiente. La versión inicial no incorpora autenticación; antes de publicar el servidor fuera del equipo hay que añadir autenticación y controles de acceso. `ALLOWED_ORIGINS` admite una lista de orígenes separados por comas.
+En el teléfono, configura la dirección HTTPS de tu servidor en **Ajustes → Conexión al servidor de IA**. Para una prueba local, compila con `VITE_DEFAULT_API_URL` apuntando a la IP Wi-Fi del computador y ejecuta `pnpm android:server`. La compilación de depuración permite HTTP dentro de la red local. La versión inicial no incorpora autenticación; antes de publicar el servidor fuera del equipo hay que añadir autenticación y controles de acceso. `ALLOWED_ORIGINS` admite una lista de orígenes separados por comas.
 
 El idioma y el tema se cambian en **Ajustes → Apariencia**. Ambas preferencias se guardan en IndexedDB. El idioma seleccionado también controla el texto generado por el asistente, las advertencias de extracción, las notificaciones y los calendarios exportados.
 
