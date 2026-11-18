@@ -1,5 +1,6 @@
 import { Capacitor } from "@capacitor/core";
 import { tr } from "./locale";
+import { authToken, clearAuthSession } from "./auth";
 const serverErrors: Record<string, string> = {
   "Hay varias solicitudes en curso. Espera unos segundos.":
     "Several requests are in progress. Wait a few seconds.",
@@ -19,6 +20,7 @@ const serverErrors: Record<string, string> = {
     "The AI did not complete the response. Try again.",
   "No pudimos interpretar el documento.": "We couldn't interpret the document.",
   "No pudimos completar la operación.": "We couldn't complete the operation.",
+  "Inicia sesión para continuar.": "Sign in to continue.",
 };
 export async function request<T>(
   path: string,
@@ -35,13 +37,21 @@ export async function request<T>(
       ),
     );
   try {
+    const token = authToken();
     const response = await fetch(`${base}/api/${path}`, {
       method: body ? "POST" : "GET",
-      headers: body ? { "Content-Type": "application/json" } : undefined,
+      headers: {
+        ...(body ? { "Content-Type": "application/json" } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
       ...(body ? { body: JSON.stringify(body) } : {}),
       signal: signal || AbortSignal.timeout(70000),
     });
     const result = await response.json();
+    if (response.status === 401) {
+      clearAuthSession();
+      window.dispatchEvent(new Event("cuentai:auth-expired"));
+    }
     if (!response.ok)
       throw new Error(
         result.error

@@ -29,11 +29,14 @@ import {
   Send,
   ArrowUpRight,
   Languages,
+  LogOut,
   Moon,
   Sun,
+  UserRound,
 } from "lucide-react";
 import { Brand, CategoryIcon, Modal, InvoiceRow } from "./components/UI";
 import { InvoiceForm } from "./components/InvoiceForm";
+import { AuthScreen } from "./components/AuthScreen";
 import {
   HomeScreen,
   CalendarScreen,
@@ -48,6 +51,8 @@ import {
   readFile,
   download,
   allAttachments,
+  claimLegacyState,
+  setStorageOwner,
 } from "./storage";
 import { demoInvoices } from "./demo";
 import { calendarICS, groupKey, todayISO, validDate } from "./domain.mjs";
@@ -58,7 +63,15 @@ import {
 } from "./notifications";
 import { request } from "./api";
 import { parseBackup } from "./backup";
-import type { AppState, Attachment, Invoice, Settings, Tab } from "./types";
+import type {
+  AppState,
+  Attachment,
+  AuthUser,
+  Invoice,
+  Settings,
+  Tab,
+} from "./types";
+import { authSession, logout as endSession } from "./auth";
 import {
   applyTheme,
   categoryLabel,
@@ -83,15 +96,19 @@ const tabs = [
 ] as const;
 function SettingsModal({
   settings,
+  user,
   onClose,
   onSave,
+  onLogout,
   onExport,
   onRestore,
   onCalendar,
 }: {
   settings: Settings;
+  user: AuthUser;
   onClose: () => void;
   onSave: (settings: Settings) => Promise<void>;
+  onLogout: () => Promise<void>;
   onExport: () => void;
   onRestore: (f: File) => Promise<void>;
   onCalendar: () => void;
@@ -210,6 +227,36 @@ function SettingsModal({
               "Preview updates instantly. Save to keep your changes.",
             )}
           </small>
+        </section>
+        <section className="settings-section account-section">
+          <h3>
+            <UserRound size={18} /> {tr("Tu cuenta", "Your account")}
+          </h3>
+          <div className="account-summary">
+            <span>{user.name.slice(0, 1).toUpperCase()}</span>
+            <div>
+              <strong>{user.name}</strong>
+              <small>{user.email}</small>
+            </div>
+            <button
+              type="button"
+              className="secondary-button"
+              disabled={busy}
+              onClick={() => {
+                setBusy(true);
+                void onLogout().catch((reason) => {
+                  setBusy(false);
+                  setError(
+                    reason instanceof Error
+                      ? reason.message
+                      : tr("No pudimos salir.", "We couldn't sign out."),
+                  );
+                });
+              }}
+            >
+              <LogOut size={16} /> {tr("Cerrar sesión", "Sign out")}
+            </button>
+          </div>
         </section>
         <label>
           {tr("Ingreso mensual opcional", "Optional monthly income")}
@@ -382,7 +429,7 @@ function SettingsModal({
           </p>
         ) : null}
         <div className="modal-footer">
-          <span>CuentAI · {tr("versión", "version")} 0.1.1</span>
+          <span>CuentAI · {tr("versión", "version")} 0.2.0</span>
           <button className="primary-button" onClick={save} disabled={busy}>
             {busy ? (
               <LoaderCircle size={16} className="spin" />
@@ -713,6 +760,9 @@ function AssistantModal({
 export default function App() {
   const [state, setState] = useState<AppState>(emptyState);
   const [loaded, setLoaded] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(
+    () => authSession()?.user || null,
+  );
   const [storageError, setStorageError] = useState("");
   const [tab, setTab] = useState<Tab>("inicio");
   const [demo, setDemo] = useState(false);
@@ -728,8 +778,13 @@ export default function App() {
   const [toast, setToast] = useState("");
   const [mutating, setMutating] = useState(false);
   useEffect(() => {
-    loadState()
+    let cancelled = false;
+    setLoaded(false);
+    setStorageOwner(user?.id);
+    (user ? claimLegacyState(user.id) : Promise.resolve())
+      .then(() => loadState())
       .then((s) => {
+        if (cancelled) return;
         setActiveLanguage(s.settings.language);
         applyTheme(s.settings.theme);
         setState(s);
@@ -737,6 +792,7 @@ export default function App() {
         setLoaded(true);
       })
       .catch(() => {
+        if (cancelled) return;
         setStorageError(
           tr(
             "No pudimos abrir el almacenamiento. Activa el almacenamiento del navegador y recarga para guardar datos.",
@@ -745,6 +801,18 @@ export default function App() {
         );
         setLoaded(true);
       });
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
+  useEffect(() => {
+    const expired = () => {
+      setLoaded(false);
+      setUser(null);
+      setModal(null);
+    };
+    window.addEventListener("cuentai:auth-expired", expired);
+    return () => window.removeEventListener("cuentai:auth-expired", expired);
   }, []);
   useLayoutEffect(() => {
     setActiveLanguage(state.settings.language);
@@ -1039,6 +1107,28 @@ export default function App() {
     await commit({ ...state, settings });
     setToast(tr("Preferencias guardadas.", "Preferences saved."));
   }
+  async function saveAuthServer(apiUrl: string) {
+    const next = {
+      ...state,
+      settings: { ...state.settings, apiUrl },
+    };
+    await saveState(next);
+    setState(next);
+  }
+  async function logout() {
+    try {
+      await endSession(state.settings.apiUrl);
+    } finally {
+      setModal(null);
+      setLoaded(false);
+      setUser(null);
+    }
+  }
+
+  function authenticated(nextUser: AuthUser) {
+    setLoaded(false);
+    setUser(nextUser);
+  }
   if (!loaded)
     return (
       <div className="loading-screen">
@@ -1051,6 +1141,14 @@ export default function App() {
           )}
         </p>
       </div>
+    );
+  if (!user)
+    return (
+      <AuthScreen
+        apiUrl={state.settings.apiUrl}
+        onServerChange={saveAuthServer}
+        onAuthenticated={authenticated}
+      />
     );
   return (
     <div className="app-shell">
@@ -1096,7 +1194,7 @@ export default function App() {
           >
             <SettingsIcon size={18} />
             {tr("Ajustes", "Settings")}
-            <span>0.1.1</span>
+            <span>0.2.0</span>
           </button>
         </div>
       </aside>
@@ -1469,8 +1567,10 @@ export default function App() {
       {modal === "settings" ? (
         <SettingsModal
           settings={state.settings}
+          user={user}
           onClose={() => setModal(null)}
           onSave={saveSettings}
+          onLogout={logout}
           onExport={() => void exportBackup()}
           onRestore={restore}
           onCalendar={exportCalendar}

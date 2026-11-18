@@ -23,10 +23,18 @@ export const emptyState = (): AppState => ({
     theme: preferredTheme(),
   },
 });
-let connection: Promise<IDBDatabase> | undefined;
-function database() {
-  connection ??= new Promise<IDBDatabase>((resolve, reject) => {
-    const request = indexedDB.open("cuentai-v1", 1);
+const connections = new Map<string, Promise<IDBDatabase>>();
+let activeOwner = "device";
+
+function databaseName(owner: string) {
+  return owner === "legacy" ? "cuentai-v1" : `cuentai-${owner}-v1`;
+}
+
+function openDatabase(name: string) {
+  let connection = connections.get(name);
+  if (connection) return connection;
+  connection = new Promise<IDBDatabase>((resolve, reject) => {
+    const request = indexedDB.open(name, 1);
     request.onupgradeneeded = () => {
       request.result.createObjectStore("state");
       request.result.createObjectStore("attachments", { keyPath: "id" });
@@ -37,7 +45,60 @@ function database() {
         new Error("No pudimos abrir el almacenamiento de este dispositivo."),
       );
   });
+  connections.set(name, connection);
   return connection;
+}
+
+function database() {
+  return openDatabase(databaseName(activeOwner));
+}
+
+export function setStorageOwner(ownerId?: string) {
+  activeOwner = ownerId
+    ? `user-${ownerId.replace(/[^a-zA-Z0-9_-]/g, "")}`
+    : "device";
+}
+
+function readRequest<T>(request: IDBRequest<T>) {
+  return new Promise<T>((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/** Moves pre-login CuentAI data into the first account used on this device. */
+export async function claimLegacyState(ownerId: string) {
+  const target = await database();
+  const existing = await readRequest(
+    target.transaction("state").objectStore("state").get("app"),
+  );
+  if (existing) return;
+
+  const legacy = await openDatabase(databaseName("legacy"));
+  const legacyTx = legacy.transaction(["state", "attachments"]);
+  const [claimedBy, state, attachments] = await Promise.all([
+    readRequest(legacyTx.objectStore("state").get("claimedBy")),
+    readRequest<AppState | undefined>(legacyTx.objectStore("state").get("app")),
+    readRequest<Attachment[]>(legacyTx.objectStore("attachments").getAll()),
+  ]);
+  if (!state || (claimedBy && claimedBy !== ownerId)) return;
+
+  await new Promise<void>((resolve, reject) => {
+    const tx = target.transaction(["state", "attachments"], "readwrite");
+    tx.objectStore("state").put(state, "app");
+    attachments.forEach((attachment) =>
+      tx.objectStore("attachments").put(attachment),
+    );
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error);
+  });
+  await new Promise<void>((resolve, reject) => {
+    const tx = legacy.transaction("state", "readwrite");
+    tx.objectStore("state").put(ownerId, "claimedBy");
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
 }
 export async function loadState(): Promise<AppState> {
   const db = await database();

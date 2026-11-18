@@ -32,6 +32,16 @@ export type Settings = {
   language: "es" | "en";
   theme: "light" | "dark";
 };
+export type AuthUser = {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+};
+export type AuthSession = {
+  token: string;
+  user: AuthUser;
+};
 export type AppState = {
   version: 1;
   started?: boolean;
