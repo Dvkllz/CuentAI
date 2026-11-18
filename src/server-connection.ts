@@ -21,7 +21,10 @@ export async function fetchFromServer(
       return await fetch(`${base}${path}`, init);
     } catch (error) {
       lastError = error;
-      if (!(error instanceof TypeError)) throw error;
+      const aborted =
+        init.signal?.aborted ||
+        (error instanceof Error && error.name === "AbortError");
+      if (aborted) throw error;
     }
   }
   throw lastError;
