@@ -4,13 +4,17 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { extractInvoice, askAssistant, assistantInput } from "./extraction.mjs";
 dotenv.config({ path: ".env.local", quiet: true });
+const androidTestMode = process.argv.includes("--android");
+const configuredPort = () =>
+  Number(process.env.PORT || (androidTestMode ? 5174 : 5173));
 export function createApp() {
   const app = express();
   app.disable("x-powered-by");
-  const port = Number(process.env.PORT || 5173);
+  const port = configuredPort();
   const allowed = new Set([
     `http://localhost:${port}`,
     `http://127.0.0.1:${port}`,
+    "http://localhost",
     "https://localhost",
     "capacitor://localhost",
     ...(process.env.ALLOWED_ORIGINS || "").split(",").filter(Boolean),
@@ -40,11 +44,9 @@ export function createApp() {
     record.count++;
     counts.set(key, record);
     if (record.count > 15 || concurrent >= 2)
-      return res
-        .status(429)
-        .json({
-          error: "Hay varias solicitudes en curso. Espera unos segundos.",
-        });
+      return res.status(429).json({
+        error: "Hay varias solicitudes en curso. Espera unos segundos.",
+      });
     concurrent++;
     let released = false;
     const release = () => {
@@ -58,7 +60,7 @@ export function createApp() {
     next();
   });
   app.get("/api/health", (_req, res) =>
-    res.json({ ready: Boolean(process.env.OPENAI_API_KEY), version: "0.1.0" }),
+    res.json({ ready: Boolean(process.env.OPENAI_API_KEY), version: "0.1.1" }),
   );
   app.post("/api/extract", async (req, res, next) => {
     try {
@@ -89,16 +91,14 @@ export function createApp() {
         : err.type === "entity.parse.failed"
           ? 400
           : err.status || 500;
-    res
-      .status(status)
-      .json({
-        error:
-          status === 413
-            ? "El archivo supera el tamaño permitido."
-            : status === 500
-              ? "No pudimos completar la operación."
-              : err.message,
-      });
+    res.status(status).json({
+      error:
+        status === 413
+          ? "El archivo supera el tamaño permitido."
+          : status === 500
+            ? "No pudimos completar la operación."
+            : err.message,
+    });
   });
   return app;
 }
@@ -107,7 +107,9 @@ const launched =
   fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
 if (launched) {
   const app = createApp();
-  if (process.argv.includes("--production")) {
+  if (androidTestMode || process.argv.includes("--api-only")) {
+    // The Android test server exposes only the API; the app bundle lives in the APK.
+  } else if (process.argv.includes("--production")) {
     app.use(express.static("dist"));
     app.get(/.*/, (_req, res) => res.sendFile(path.resolve("dist/index.html")));
   } else {
@@ -118,8 +120,11 @@ if (launched) {
     });
     app.use(vite.middlewares);
   }
-  const port = Number(process.env.PORT || 5173);
-  const host = process.env.HOST || "127.0.0.1";
+  const port = configuredPort();
+  const host =
+    androidTestMode || process.argv.includes("--lan")
+      ? "0.0.0.0"
+      : process.env.HOST || "127.0.0.1";
   app.listen(port, host, () =>
     console.log(`CuentAI disponible en http://${host}:${port}`),
   );

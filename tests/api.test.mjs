@@ -99,11 +99,15 @@ test("local API denies foreign origins, malformed uploads and invalid assistant 
   try {
     const health = await fetch(url + "/api/health");
     assert.equal(health.status, 200);
-    assert.equal((await health.json()).version, "0.1.0");
+    assert.equal((await health.json()).version, "0.1.1");
     const forbidden = await fetch(url + "/api/health", {
       headers: { Origin: "https://untrusted.example" },
     });
     assert.equal(forbidden.status, 403);
+    const android = await fetch(url + "/api/health", {
+      headers: { Origin: "http://localhost" },
+    });
+    assert.equal(android.status, 200);
     const upload = await fetch(url + "/api/extract", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

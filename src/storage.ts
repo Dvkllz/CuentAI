@@ -7,13 +7,17 @@ const preferredTheme = (): Theme =>
   matchMedia("(prefers-color-scheme: dark)").matches
     ? "dark"
     : "light";
+const defaultApiUrl = () =>
+  typeof import.meta.env.VITE_DEFAULT_API_URL === "string"
+    ? import.meta.env.VITE_DEFAULT_API_URL.replace(/\/$/, "")
+    : "";
 export const emptyState = (): AppState => ({
   version: 1,
   started: false,
   invoices: [],
   settings: {
     income: null,
-    apiUrl: "",
+    apiUrl: defaultApiUrl(),
     notifications: false,
     language: "es",
     theme: preferredTheme(),
@@ -47,7 +51,12 @@ export async function loadState(): Promise<AppState> {
       const theme: Theme = stored.settings.theme === "dark" ? "dark" : "light";
       resolve({
         ...stored,
-        settings: { ...stored.settings, language, theme },
+        settings: {
+          ...stored.settings,
+          apiUrl: stored.settings.apiUrl || defaultApiUrl(),
+          language,
+          theme,
+        },
       });
     };
     request.onerror = () => reject(request.error);
