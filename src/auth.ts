@@ -1,6 +1,7 @@
 import { Capacitor } from "@capacitor/core";
 import type { AuthSession, AuthUser } from "./types";
 import { tr } from "./locale";
+import { fetchFromServer } from "./server-connection";
 
 const STORAGE_KEY = "cuentai-auth-v1";
 let session: AuthSession | null = null;
@@ -58,7 +59,7 @@ export async function authRequest<T>(
       ),
     );
   try {
-    const response = await fetch(`${base}/api/auth/${action}`, {
+    const response = await fetchFromServer(base, `/api/auth/${action}`, {
       method: action === "me" ? "GET" : "POST",
       headers: {
         ...(body ? { "Content-Type": "application/json" } : {}),

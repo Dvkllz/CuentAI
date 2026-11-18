@@ -1,6 +1,7 @@
 import { Capacitor } from "@capacitor/core";
 import { tr } from "./locale";
 import { authToken, clearAuthSession } from "./auth";
+import { fetchFromServer } from "./server-connection";
 const serverErrors: Record<string, string> = {
   "Hay varias solicitudes en curso. Espera unos segundos.":
     "Several requests are in progress. Wait a few seconds.",
@@ -38,7 +39,7 @@ export async function request<T>(
     );
   try {
     const token = authToken();
-    const response = await fetch(`${base}/api/${path}`, {
+    const response = await fetchFromServer(base, `/api/${path}`, {
       method: body ? "POST" : "GET",
       headers: {
         ...(body ? { "Content-Type": "application/json" } : {}),
