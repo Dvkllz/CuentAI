@@ -13,7 +13,7 @@ if (-not $SdkRoot -or -not (Test-Path -LiteralPath $SdkRoot)) { throw 'Configura
 if (-not $JavaHome -or -not (Test-Path "$JavaHome\bin\java.exe")) { throw 'Configura Java 21 con -JavaHome o JAVA_HOME.' }
 $env:JAVA_HOME = $JavaHome
 $env:ANDROID_HOME = $SdkRoot
-$env:GRADLE_USER_HOME = "$taskRoot\.gradle-user"
+$env:GRADLE_USER_HOME = if ($env:GRADLE_USER_HOME) { $env:GRADLE_USER_HOME } else { "$taskRoot\.gradle-user" }
 $env:ANDROID_USER_HOME = "$taskRoot\.tools\android-user"
 $taskNodeCommand = Get-Command node -ErrorAction SilentlyContinue
 $taskBundled = Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node'
@@ -40,7 +40,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Falló la revisión de secretos.' }
 ('sdk.dir=' + $SdkRoot.Replace('\', '/')) | Set-Content android/local.properties -Encoding ascii
 Push-Location android
 try {
-  & .\gradlew.bat --no-daemon --console=plain --max-workers=2 assembleDebug
+  & .\gradlew.bat --no-daemon --no-watch-fs --console=plain --max-workers=1 :app:assembleDebug
   if ($LASTEXITCODE -ne 0) { throw 'Falló la compilación del APK.' }
 } finally { Pop-Location }
 New-Item -ItemType Directory -Path releases -Force | Out-Null

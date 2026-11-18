@@ -1,6 +1,6 @@
 # CuentAI
 
-Versión inicial 0.1 de una aplicación para organizar facturas y obligaciones en pesos colombianos. La interfaz se adapta al teléfono y al escritorio, con tipografía de sistema, temas claro y oscuro y acentos azules.
+Aplicación para organizar facturas y obligaciones en pesos colombianos. La interfaz se adapta al teléfono y al escritorio, con tipografía de sistema, temas claro y oscuro y acentos azules.
 
 ## Probar la app
 
@@ -10,6 +10,8 @@ La primera visita muestra ejemplos claramente identificados. Pulsa **Usar mis fa
 
 ## Funciones implementadas
 
+- Registro, inicio y cierre de sesión con contraseñas derivadas mediante scrypt y sesiones opacas de 30 días.
+- Archivo local separado por cuenta; una actualización desde la versión anterior asigna los datos existentes a la primera cuenta usada.
 - Cámara en Android y carga de imágenes JPG, PNG, WebP o PDF, hasta 12 MB por documento.
 - Extracción real con OpenAI y revisión de entidad, importe, fechas, categoría y referencia antes de guardar.
 - Registro manual cuando no se usa la IA o no hay conexión al servidor.
@@ -39,7 +41,7 @@ pnpm start
 
 El servidor y la aplicación comparten el puerto 5173. Para cambiarlo usa `PORT` en `.env.local`. El servidor se limita a `127.0.0.1` de forma predeterminada.
 
-La clave se configura en `.env.local` como `OPENAI_API_KEY`. El modelo se puede cambiar con `OPENAI_MODEL`; el valor inicial es `gpt-4.1-mini`. La clave ya se configuró en este equipo y el archivo está excluido del control de versiones. La clave no se empaqueta en la aplicación ni en Android.
+La clave se configura en `.env.local` como `OPENAI_API_KEY`. El modelo se puede cambiar con `OPENAI_MODEL`; el valor inicial es `gpt-4.1-mini`. La clave ya se configuró en este equipo y el archivo está excluido del control de versiones. La clave no se empaqueta en la aplicación ni en Android. Las cuentas y sesiones se guardan de forma predeterminada en `.data/auth.json`, también excluido de Git; `AUTH_DATA_FILE` permite cambiar esa ruta.
 
 ## Proyecto Android
 
@@ -55,13 +57,13 @@ El APK de prueba se distribuye en [Releases](https://github.com/Dvkllz/CuentAI/r
 
 Para compilar usa Java 21, Android SDK 36 y `scripts/build-android.ps1`. Las herramientas locales están en `.tools/` y excluidas del repositorio. El APK usa firma de depuración.
 
-En el teléfono, configura la dirección HTTPS de tu servidor en **Ajustes → Conexión al servidor de IA**. Para una prueba local, compila con `VITE_DEFAULT_API_URL` apuntando a la IP Wi-Fi del computador y ejecuta `pnpm android:server`. La compilación de depuración permite HTTP dentro de la red local. La versión inicial no incorpora autenticación; antes de publicar el servidor fuera del equipo hay que añadir autenticación y controles de acceso. `ALLOWED_ORIGINS` admite una lista de orígenes separados por comas.
+En el teléfono, configura la dirección HTTPS de tu servidor en la pantalla de acceso o en **Ajustes → Conexión al servidor de IA**. Para una prueba local, compila con `VITE_DEFAULT_API_URL` apuntando a la IP Wi-Fi del computador y ejecuta `pnpm android:server`. La compilación de depuración permite HTTP dentro de la red local. En ese modo, usa una contraseña exclusiva de prueba: HTTP no cifra las credenciales. Una publicación real debe usar HTTPS y almacenamiento administrado para cuentas. `ALLOWED_ORIGINS` admite una lista de orígenes separados por comas.
 
 El idioma y el tema se cambian en **Ajustes → Apariencia**. Ambas preferencias se guardan en IndexedDB. El idioma seleccionado también controla el texto generado por el asistente, las advertencias de extracción, las notificaciones y los calendarios exportados.
 
 ## Datos y límites
 
-Los documentos se guardan en IndexedDB, dentro del almacenamiento de la app o navegador. No hay sincronización entre dispositivos ni cifrado adicional de la aplicación. Al borrar los datos del navegador o desinstalar la app se puede perder el archivo: conserva un respaldo.
+Los documentos se guardan por cuenta en IndexedDB, dentro del almacenamiento de la app o navegador. No hay sincronización entre dispositivos ni cifrado adicional de la aplicación. Al borrar los datos del navegador o desinstalar la app se puede perder el archivo: conserva un respaldo. Esta versión de prueba no incluye recuperación de contraseña ni verificación por correo.
 
 El documento se envía a OpenAI únicamente al pulsar **Leer con IA**. Al preguntar al asistente se envían la pregunta y los datos de las facturas que fundamentan la respuesta. Las solicitudes usan `store: false`; esto no sustituye las condiciones de retención del proveedor.
 
@@ -69,6 +71,6 @@ CuentAI registra pagos realizados por el usuario; no ejecuta pagos bancarios. La
 
 ## Verificación
 
-Las pruebas automatizadas verifican fechas, totales, recurrencia, comparación, exportación bilingüe de calendario, preferencias de idioma y tema, validación de archivos, respaldo y restricciones del servidor. La revisión en navegador comprobó lectura real de una factura de prueba, confirmación, pago con comprobante y persistencia tras recargar, además de la interfaz móvil.
+Las pruebas automatizadas verifican fechas, totales, recurrencia, comparación, exportación bilingüe de calendario, preferencias de idioma y tema, validación de archivos, respaldo, registro, sesiones, cierre de sesión, hash de contraseñas y protección de la IA. La revisión en navegador comprobó lectura real de una factura de prueba, confirmación, pago con comprobante y persistencia tras recargar, además de la interfaz móvil.
 
 Referencias de implementación: [OpenAI Responses y archivos](https://developers.openai.com/api/docs/guides/file-inputs), [salidas estructuradas](https://developers.openai.com/api/docs/guides/structured-outputs), [Capacitor](https://capacitorjs.com/docs), [PDF.js](https://mozilla.github.io/pdf.js/examples/).
