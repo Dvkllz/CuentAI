@@ -53,7 +53,7 @@ pnpm android:open
 pnpm android:server
 ```
 
-El APK de prueba se distribuye en [Releases](https://github.com/Dvkllz/CuentAI/releases). Consulta [la guía de prueba Android](docs/PRUEBA_ANDROID.md) para instalarlo, conectar la IA por Wi-Fi y probar las notificaciones. Las funciones nativas todavía requieren comprobación en un teléfono o emulador.
+El APK de prueba se distribuye en [Releases](https://github.com/Dvkllz/CuentAI/releases). Consulta [la guía de prueba Android](docs/PRUEBA_ANDROID.md) para instalarlo, conectar la IA por Wi-Fi y probar las notificaciones. En Android Studio la app detecta automáticamente la ruta del emulador hacia el servidor local.
 
 Para compilar usa Java 21, Android SDK 36 y `scripts/build-android.ps1`. Las herramientas locales están en `.tools/` y excluidas del repositorio. El APK usa firma de depuración.
 

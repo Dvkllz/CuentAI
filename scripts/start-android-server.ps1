@@ -9,13 +9,13 @@ $taskNodeCommand = Get-Command node -ErrorAction SilentlyContinue
 $taskNode = if ($taskNodeCommand) { $taskNodeCommand.Source } else { Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' }
 if (-not (Test-Path -LiteralPath $taskNode)) { throw 'Instala Node.js 24.' }
 $taskReady = $false
-try { $taskHealth = Invoke-RestMethod ($taskURL + '/api/health') -TimeoutSec 2; $taskReady = $taskHealth.version -eq '0.2.1' -and $taskHealth.ready } catch {}
+try { $taskHealth = Invoke-RestMethod ($taskURL + '/api/health') -TimeoutSec 2; $taskReady = $taskHealth.version -eq '0.2.2' -and $taskHealth.ready } catch {}
 if (-not $taskReady) {
   New-Item -ItemType Directory -Path "$taskRoot\artifacts" -Force | Out-Null
   Start-Process -FilePath $taskNode -ArgumentList @(('"' + "$taskRoot\server\index.mjs" + '"'), '--android') -WorkingDirectory $taskRoot -WindowStyle Hidden -RedirectStandardOutput "$taskRoot\artifacts\servidor-android.log" -RedirectStandardError "$taskRoot\artifacts\servidor-android-error.log"
   for ($taskAttempt = 0; $taskAttempt -lt 20; $taskAttempt++) {
     Start-Sleep -Milliseconds 250
-    try { $taskHealth = Invoke-RestMethod ($taskURL + '/api/health') -TimeoutSec 1; if ($taskHealth.version -eq '0.2.1' -and $taskHealth.ready) { $taskReady = $true; break } } catch {}
+    try { $taskHealth = Invoke-RestMethod ($taskURL + '/api/health') -TimeoutSec 1; if ($taskHealth.version -eq '0.2.2' -and $taskHealth.ready) { $taskReady = $true; break } } catch {}
   }
 }
 if (-not $taskReady) { throw 'No pudimos iniciar el servidor. Revisa artifacts/servidor-android-error.log.' }
